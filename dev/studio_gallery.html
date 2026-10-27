@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hagaki studio gallery</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0; padding: 28px 32px 60px; background: #ebe6dc; color: #2a2521; font: 13px/1.45 -apple-system, BlinkMacSystemFont, system-ui, "Helvetica Neue", sans-serif; }
+  h1 { font: 600 22px/1.2 "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif; margin: 0 0 4px; letter-spacing: 0.02em; }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: #8a7f70; margin: 30px 0 12px; font-weight: 600; }
+  #perf { font: 12px/1.5 ui-monospace, Menlo, monospace; background: #fffaf0; border: 1px solid #ddd3c2; border-radius: 8px; padding: 10px 12px; white-space: pre-wrap; }
+  #errors { color: #b3261e; font: 12px ui-monospace, Menlo, monospace; white-space: pre-wrap; }
+  .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+  .swatch canvas { width: 100%; aspect-ratio: 16 / 10; display: block; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.12); }
+  .swatches.big { grid-template-columns: repeat(3, 1fr); }
+  .swatch div { margin-top: 5px; font-size: 11.5px; color: #5c5349; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .cell canvas { width: 100%; height: auto; display: block; border-radius: 4px; }
+  .cell div { margin-top: 4px; font-size: 11.5px; color: #6c6257; }
+  .single canvas { max-width: 100%; height: auto; display: block; }
+  .single.natural canvas { max-width: none; }
+  .frames { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .frames canvas { width: 100%; height: auto; display: block; }
+</style>
+</head>
+<body>
+<div id="errors"></div>
+<script>
+  window.addEventListener("error", function (e) {
+    document.getElementById("errors").textContent += "ERROR: " + e.message + " @ " + (e.filename || "") + ":" + (e.lineno || "") + "\n";
+  });
+</script>
+<script src="../studio.js"></script>
+<div id="root"></div>
+<script>
+(function () {
+  var FONT = '-apple-system, BlinkMacSystemFont, system-ui, "Helvetica Neue", sans-serif';
+  var studio = window.HagakiStudio;
+  var root = document.getElementById("root");
+
+  function rr(g, x, y, w, h, r) {
+    g.beginPath();
+    g.moveTo(x + r, y);
+    g.arcTo(x + w, y, x + w, y + h, r);
+    g.arcTo(x + w, y + h, x, y + h, r);
+    g.arcTo(x, y + h, x, y, r);
+    g.arcTo(x, y, x + w, y, r);
+    g.closePath();
+  }
+
+  function sampleShot(wPt, hPt, pr) {
+    var c = document.createElement("canvas");
+    c.width = Math.round(wPt * pr);
+    c.height = Math.round(hPt * pr);
+    var g = c.getContext("2d");
+    g.scale(pr, pr);
+    g.fillStyle = "#ffffff";
+    g.fillRect(0, 0, wPt, hPt);
+    var sb = wPt > 700 ? Math.min(220, wPt * 0.22) : 0;
+    if (sb) {
+      g.fillStyle = "#f6f4f0";
+      g.fillRect(0, 0, sb, hPt);
+      g.fillStyle = "#e5e1d9";
+      g.fillRect(sb - 1, 0, 1, hPt);
+      g.font = "600 10.5px " + FONT;
+      g.fillStyle = "#a0988c";
+      g.fillText("LIBRARY", 20, 34);
+      var items = [["Overview", "#e8553e"], ["Postcards", "#3a7bd5"], ["Albums", "#2fa36b"], ["Shared", "#9a6ad6"], ["Archive", "#c9a227"], ["Trash", "#8a8a8a"]];
+      items.forEach(function (it, i) {
+        var y = 48 + i * 30;
+        if (i === 0) { g.fillStyle = "#e7e2d9"; rr(g, 10, y - 2, sb - 20, 26, 6); g.fill(); }
+        g.fillStyle = it[1];
+        rr(g, 20, y + 4, 14, 14, 4);
+        g.fill();
+        g.fillStyle = "#2b2824";
+        g.font = (i === 0 ? "600" : "500") + " 13px " + FONT;
+        g.fillText(it[0], 44, y + 16);
+      });
+      g.font = "600 10.5px " + FONT;
+      g.fillStyle = "#a0988c";
+      g.fillText("TRIPS", 20, 252);
+      ["Kyoto 2026", "Hokkaido", "Okinawa"].forEach(function (t, i) {
+        g.fillStyle = ["#d9534f", "#5b8def", "#3cb4a0"][i];
+        g.beginPath(); g.arc(27, 274 + i * 28, 4, 0, Math.PI * 2); g.fill();
+        g.fillStyle = "#4a443d"; g.font = "500 13px " + FONT; g.fillText(t, 44, 279 + i * 28);
+      });
+    }
+    var mx = sb, mw = wPt - sb;
+    g.fillStyle = "#fcfbf9";
+    g.fillRect(mx, 0, mw, 52);
+    g.fillStyle = "#ebe7e0";
+    g.fillRect(mx, 52, mw, 1);
+    g.fillStyle = "#1f1c19";
+    g.font = "700 15px " + FONT;
+    g.fillText("Overview", mx + 22, 32);
+    g.fillStyle = "#f0ede8";
+    rr(g, mx + mw - 330, 13, 180, 27, 7);
+    g.fill();
+    g.fillStyle = "#9a9288";
+    g.font = "13px " + FONT;
+    g.fillText("Search postcards", mx + mw - 300, 31);
+    g.strokeStyle = "#9a9288"; g.lineWidth = 1.5;
+    g.beginPath(); g.arc(mx + mw - 314, 25, 5, 0, Math.PI * 2); g.stroke();
+    g.fillStyle = "#c8442b";
+    rr(g, mx + mw - 138, 12, 118, 29, 7);
+    g.fill();
+    g.fillStyle = "#fff";
+    g.font = "600 13px " + FONT;
+    g.fillText("New postcard", mx + mw - 122, 31);
+    var px = mx + 28, py = 92;
+    g.fillStyle = "#1f1c19";
+    g.font = "700 26px " + FONT;
+    g.fillText("Autumn in Kyoto", px, py);
+    g.fillStyle = "#857c71";
+    g.font = "14px " + FONT;
+    g.fillText("128 postcards sent · last updated 14 Oct 2026", px, py + 24);
+    var cardW = (mw - 56 - 32) / 3, cards = [["Sent", "1,284", "+12.4%", "#2f9e62"], ["Opened", "86.2%", "+3.1%", "#2f9e62"], ["Replies", "312", "−1.8%", "#c8442b"]];
+    cards.forEach(function (c, i) {
+      var x = px + i * (cardW + 16), y = py + 48;
+      g.fillStyle = "#faf8f5";
+      rr(g, x, y, cardW, 92, 10); g.fill();
+      g.strokeStyle = "#ece7df"; g.lineWidth = 1; rr(g, x + 0.5, y + 0.5, cardW - 1, 91, 10); g.stroke();
+      g.fillStyle = "#857c71"; g.font = "500 12.5px " + FONT; g.fillText(c[0], x + 16, y + 26);
+      g.fillStyle = "#1f1c19"; g.font = "700 28px " + FONT; g.fillText(c[1], x + 16, y + 62);
+      g.fillStyle = c[3]; g.font = "600 12.5px " + FONT; g.fillText(c[2], x + 16, y + 80);
+    });
+    var cx = px, cy = py + 168, cw = mw - 56, ch = Math.max(120, hPt - cy - 150);
+    g.fillStyle = "#1f1c19"; g.font = "600 14px " + FONT; g.fillText("Postcards per week", cx, cy);
+    var gx = cx + 30, gy = cy + 18, gw = cw - 30, gh = ch - 40;
+    g.strokeStyle = "#efebe5"; g.lineWidth = 1;
+    g.fillStyle = "#a39a8f"; g.font = "11px " + FONT;
+    for (var k = 0; k <= 4; k++) {
+      var yy = Math.round(gy + gh * k / 4) + 0.5;
+      g.beginPath(); g.moveTo(gx, yy); g.lineTo(gx + gw, yy); g.stroke();
+      g.fillText(String((4 - k) * 50), cx, yy + 4);
+    }
+    var vals = [42, 58, 51, 77, 95, 88, 121, 109, 134, 158, 147, 172, 165, 188];
+    var n = vals.length, bw = gw / n;
+    vals.forEach(function (v, i) {
+      var h = gh * v / 200;
+      g.fillStyle = i === n - 3 ? "#c8442b" : "#ead9cf";
+      rr(g, gx + i * bw + bw * 0.22, gy + gh - h, bw * 0.56, h, 3); g.fill();
+    });
+    g.beginPath();
+    vals.forEach(function (v, i) {
+      var x = gx + i * bw + bw / 2, y = gy + gh - gh * (v * 0.82 + 12) / 200;
+      if (i) g.lineTo(x, y); else g.moveTo(x, y);
+    });
+    g.strokeStyle = "#2f5687"; g.lineWidth = 2.5; g.lineJoin = "round"; g.stroke();
+    vals.forEach(function (v, i) {
+      var x = gx + i * bw + bw / 2, y = gy + gh - gh * (v * 0.82 + 12) / 200;
+      g.fillStyle = "#fff"; g.beginPath(); g.arc(x, y, 3.5, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = "#2f5687"; g.lineWidth = 2; g.stroke();
+    });
+    var ty = gy + gh + 34;
+    var rows = [["Fushimi Inari at dawn", "Sent", "#2f9e62"], ["Arashiyama bamboo grove", "Draft", "#c9a227"], ["Kiyomizu-dera lanterns", "Sent", "#2f9e62"]];
+    rows.forEach(function (r, i) {
+      var y = ty + i * 30;
+      if (y > hPt - 12) return;
+      g.fillStyle = "#ebe7e0"; g.fillRect(px, y - 20, mw - 56, 1);
+      g.fillStyle = r[2]; g.beginPath(); g.arc(px + 6, y - 4, 4, 0, Math.PI * 2); g.fill();
+      g.fillStyle = "#2b2824"; g.font = "500 13px " + FONT; g.fillText(r[0], px + 20, y);
+      g.fillStyle = "#857c71"; g.font = "13px " + FONT; g.fillText(r[1], px + mw - 140, y);
+    });
+    return c;
+  }
+
+  function parseHash() {
+    var out = {};
+    location.hash.replace(/^#/, "").split("&").forEach(function (part) {
+      if (!part) return;
+      var i = part.indexOf("=");
+      var k = decodeURIComponent(i < 0 ? part : part.slice(0, i));
+      out[k] = i < 0 ? "1" : decodeURIComponent(part.slice(i + 1).replace(/\+/g, " "));
+    });
+    return out;
+  }
+
+  function el(tag, cls, parent) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    (parent || root).appendChild(e);
+    return e;
+  }
+
+  function flush(canvas) { canvas.getContext("2d").getImageData(0, 0, 1, 1); }
+
+  function optsFrom(p) {
+    var o = {};
+    ["bg", "frame", "aspect", "title", "caption", "date"].forEach(function (k) { if (p[k] !== undefined) o[k] = p[k]; });
+    ["padding", "radius", "shadow", "inset", "scale"].forEach(function (k) { if (p[k] !== undefined) o[k] = Number(p[k]); });
+    if (p.stamp !== undefined) o.stamp = p.stamp === "1" || p.stamp === "true";
+    return o;
+  }
+
+  function perfLine() {
+    var pr = 2, shot = sampleShot(1470, 905, pr);
+    var opts = { bg: "fuji", frame: "macos", title: "Hagaki — Overview", aspect: "3:2", padding: 9 };
+    var c = document.createElement("canvas");
+    var t0 = performance.now();
+    var size = studio.render(c, shot, opts, { pixelRatio: pr });
+    flush(c);
+    var cold = performance.now() - t0;
+    var times = [];
+    studio.backgrounds.forEach(function (b) {
+      ["macos", "postcard"].forEach(function (f) {
+        var o = Object.assign({}, opts, { bg: b.id, frame: f, stamp: true, caption: "Autumn in Kyoto" });
+        var s = performance.now();
+        studio.render(c, shot, o, { pixelRatio: pr });
+        flush(c);
+        times.push([performance.now() - s, b.id + "/" + f, c.width + "x" + c.height]);
+      });
+    });
+    times.sort(function (a, b) { return a[0] - b[0]; });
+    var avg = times.reduce(function (s, t) { return s + t[0]; }, 0) / times.length;
+    return "Composition " + size.width + "x" + size.height + " (sample 2940x1810 @2x)\n" +
+      "first render (cold caches): " + cold.toFixed(1) + " ms\n" +
+      "warm, all " + times.length + " bg/frame combos: median " + times[times.length >> 1][0].toFixed(1) + " ms, avg " + avg.toFixed(1) + " ms, max " + times[times.length - 1][0].toFixed(1) + " ms (" + times[times.length - 1][1] + ")\n" +
+      "slowest five: " + times.slice(-5).map(function (t) { return t[1] + " " + t[0].toFixed(0) + "ms"; }).join(", ");
+  }
+
+  function gallery() {
+    var h1 = el("h1");
+    h1.textContent = "Hagaki 葉書 · studio gallery";
+    el("div").textContent = studio.backgrounds.length + " backgrounds · " + studio.frames.length + " frames · v" + studio.version;
+    el("h2").textContent = "Render time";
+    var perf = el("div");
+    perf.id = "perf";
+    perf.textContent = perfLine();
+    el("h2").textContent = "Backgrounds";
+    var sw = el("div", "swatches");
+    studio.backgrounds.forEach(function (b) {
+      var cell = el("div", "swatch", sw);
+      var c = el("canvas", "", cell);
+      c.width = 320; c.height = 200;
+      studio.swatch(c, b.id);
+      el("div", "", cell).textContent = b.id + " · " + b.name;
+    });
+    el("h2").textContent = "Every background × frames (sample 960×600 @1x)";
+    var grid = el("div", "grid");
+    var shot = sampleShot(960, 600, 1);
+    var cycle = ["macos-dark", "windows", "linux", "none"];
+    studio.backgrounds.forEach(function (b, i) {
+      [["macos", { title: "Hagaki — Overview" }], [cycle[i % 4], { title: "Overview", caption: i % 2 ? "Autumn in Kyoto, 2026" : "" }], ["postcard", { caption: i % 3 === 0 ? "" : "Greetings from Kyoto", stamp: true }]].forEach(function (spec) {
+        var cell = el("div", "cell", grid);
+        var c = el("canvas", "", cell);
+        studio.render(c, shot, Object.assign({ bg: b.id, frame: spec[0], stamp: i % 5 === 0 }, spec[1]), { pixelRatio: 1 });
+        el("div", "", cell).textContent = b.id + " · " + spec[0] + " · " + c.width + "×" + c.height;
+      });
+    });
+  }
+
+  function single(p) {
+    var pr = Number(p.pr || 1), w = Number(p.w || 1280), h = Number(p.h || 800);
+    var shot = sampleShot(w, h, pr);
+    var wrap = el("div", "single" + (p.natural ? " natural" : ""));
+    var c = el("canvas", "", wrap);
+    var t0 = performance.now();
+    var size = studio.render(c, shot, optsFrom(p), { pixelRatio: pr });
+    flush(c);
+    if (p.crop) {
+      var f = p.crop.split(",").map(Number), zoom = Number(p.zoom || 1);
+      var sx = Math.round(f[0] * c.width), sy = Math.round(f[1] * c.height), sw = Math.round(f[2] * c.width), sh = Math.round(f[3] * c.height);
+      var view = document.createElement("canvas");
+      view.width = Math.round(sw * zoom); view.height = Math.round(sh * zoom);
+      var vg = view.getContext("2d");
+      vg.imageSmoothingEnabled = zoom < 1;
+      vg.drawImage(c, sx, sy, sw, sh, 0, 0, view.width, view.height);
+      wrap.replaceChild(view, c);
+      wrap.className = "single natural";
+    }
+    var info = el("div");
+    info.style.marginTop = "8px";
+    info.textContent = JSON.stringify(optsFrom(p)) + " pr=" + pr + " → " + size.width + "×" + size.height + " in " + (performance.now() - t0).toFixed(1) + " ms";
+    if (p.blob) {
+      studio.toBlob(shot, optsFrom(p), { pixelRatio: pr }).then(function (b) {
+        el("div").textContent = "toBlob: " + b.type + " " + b.size + " bytes";
+      });
+    }
+  }
+
+  function frames(p) {
+    var pr = Number(p.pr || 2), shot = sampleShot(Number(p.w || 1280), Number(p.h || 800), pr);
+    var grid = el("div", "frames");
+    studio.frames.forEach(function (f) {
+      var cell = el("div", "cell", grid);
+      var c = el("canvas", "", cell);
+      var o = Object.assign(optsFrom(p), { frame: f.id });
+      if (o.title === undefined) o.title = "Hagaki — Overview";
+      studio.render(c, shot, o, { pixelRatio: pr });
+      el("div", "", cell).textContent = f.id + " · " + c.width + "×" + c.height;
+    });
+  }
+
+  function tiny() {
+    var wrap = el("div");
+    wrap.style.display = "grid";
+    wrap.style.gridTemplateColumns = "repeat(5, 1fr)";
+    wrap.style.gap = "14px";
+    studio.backgrounds.forEach(function (b) {
+      var cell = el("div", "", wrap);
+      var c = el("canvas", "", cell);
+      c.width = 96; c.height = 64;
+      studio.swatch(c, b.id);
+      c.style.borderRadius = "6px";
+      var big = el("canvas", "", cell);
+      big.width = 96; big.height = 64;
+      big.getContext("2d").drawImage(c, 0, 0);
+      big.style.width = "288px"; big.style.height = "192px"; big.style.imageRendering = "pixelated"; big.style.marginLeft = "10px";
+      el("div", "", cell).textContent = b.id;
+    });
+  }
+
+  function backgroundOnly(p) {
+    var c = el("canvas");
+    c.width = Number(p.w || 1600); c.height = Number(p.h || 1000);
+    c.style.width = "100%";
+    var t0 = performance.now();
+    studio.swatch(c, p.bg);
+    flush(c);
+    el("div").textContent = p.bg + " " + c.width + "x" + c.height + " in " + (performance.now() - t0).toFixed(1) + " ms";
+  }
+
+  function swatchesOnly(p) {
+    var sw = el("div", "swatches big");
+    var ids = p.ids ? p.ids.split(",") : studio.backgrounds.map(function (b) { return b.id; });
+    studio.backgrounds.filter(function (b) { return ids.indexOf(b.id) >= 0; }).forEach(function (b) {
+      var cell = el("div", "swatch", sw);
+      var c = el("canvas", "", cell);
+      c.width = Number(p.sw || 480); c.height = Math.round(c.width * 0.625);
+      studio.swatch(c, b.id);
+      el("div", "", cell).textContent = b.id + " · " + b.name;
+    });
+  }
+
+  function profile() {
+    var out = el("pre");
+    var W = 3948, H = 2632, c = document.createElement("canvas");
+    c.width = W; c.height = H;
+    var lines = [];
+    studio.backgrounds.forEach(function (b) {
+      studio.swatch(c, b.id); flush(c);
+      var t = performance.now();
+      studio.swatch(c, b.id); flush(c);
+      lines.push("bg " + b.id + ": " + (performance.now() - t).toFixed(1) + " ms");
+    });
+    var shot = sampleShot(1600, 1000, 2);
+    [["paper", "macos", 0], ["paper", "macos", 55], ["paper", "postcard", 0], ["paper", "postcard", 55], ["paper", "none", 55]].forEach(function (k) {
+      var o = { bg: k[0], frame: k[1], shadow: k[2], aspect: "3:2", padding: 9 };
+      studio.render(c, shot, o, { pixelRatio: 2 }); flush(c);
+      var t = performance.now();
+      studio.render(c, shot, o, { pixelRatio: 2 }); flush(c);
+      lines.push("render " + k.join("/") + ": " + (performance.now() - t).toFixed(1) + " ms");
+    });
+    var t2 = performance.now();
+    c.getContext("2d").drawImage(shot, 0, 0); flush(c);
+    lines.push("plain drawImage of shot: " + (performance.now() - t2).toFixed(1) + " ms");
+    var t3 = performance.now();
+    var g = c.getContext("2d"); g.fillStyle = "#abc"; g.fillRect(0, 0, W, H); flush(c);
+    lines.push("plain fillRect: " + (performance.now() - t3).toFixed(1) + " ms");
+    out.textContent = lines.join("\n");
+  }
+
+  var p = parseHash();
+  if (p.mode === "frames") frames(p);
+  else if (p.mode === "swatches") swatchesOnly(p);
+  else if (p.mode === "bg") backgroundOnly(p);
+  else if (p.mode === "prof") profile();
+  else if (p.mode === "tiny") tiny();
+  else if (p.bg || p.frame || p.mode === "single") single(p);
+  else gallery();
+})();
+</script>
+</body>
+</html>

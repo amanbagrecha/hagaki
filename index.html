@@ -1,0 +1,1789 @@
+<!doctype html>
+<html lang="en" data-fused-theme="shell">
+<head>
+<meta charset="utf-8" />
+<meta name="fused-app" />
+<meta name="fused-app-id" content="hagaki-438cbd6e" />
+<meta name="fused-api-version" content="1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hagaki</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #1b2131; --bg-2: #222a3d; --paper: #283048; --paper-2: #2f3852;
+  --ink: #eeeae2; --ink-2: #c5c8d2; --ink-3: #8b92a6; --line: #374058; --line-2: #4a5572;
+  --shu: #ef5a3e; --shu-ink: #1b120f; --shu-soft: #4a2b2a; --ai: #9cc6d6; --ai-soft: #2a3b4f;
+  --navy: #10172a; --sky: #7fb3c6; --sand: #e3bf80; --sand-soft: #3b3528; --snow: #f4f1ea;
+  --matcha: #77c7b8; --matcha-soft: #213a3b; --gold: #e3bf80; --warn: #e6aa52; --warn-soft: #3d3022;
+  --hl: inset 0 1px 0 rgba(255,255,255,.07); --hl-strong: inset 0 1px 0 rgba(255,255,255,.3);
+  --well: inset 0 1px 2px rgba(0,0,0,.3); --gloss: linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,0) 55%);
+  --shadow: var(--hl), 0 1px 0 rgba(0,0,0,.25), 0 10px 28px -14px rgba(0,0,0,.7);
+  --shadow-lift: var(--hl), 0 2px 0 rgba(0,0,0,.25), 0 18px 40px -16px rgba(0,0,0,.8);
+  --scrim: rgba(8,10,18,.62); --grain: .09; --pm: #c5c8d2;
+}
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg: #e7e4de; --bg-2: #dcd8d0; --paper: #f5f3ee; --paper-2: #eeebe4;
+  --ink: #27304a; --ink-2: #4b5571; --ink-3: #848a9c; --line: #d6d2c9; --line-2: #c2bdb2;
+  --shu: #dd4630; --shu-ink: #fff8f1; --shu-soft: #f6d8cf; --ai: #2f3b57; --ai-soft: #d5e5ec;
+  --navy: #2f3a55; --sky: #9cc4d3; --sand: #e9c58b; --sand-soft: #f4e4c5; --snow: #ffffff;
+  --matcha: #2f8a80; --matcha-soft: #d2e8e4; --gold: #b98a3a; --warn: #b5701e; --warn-soft: #f5e3c8;
+  --hl: inset 0 1px 0 rgba(255,255,255,.85); --hl-strong: inset 0 1px 0 rgba(255,255,255,.35);
+  --well: inset 0 1px 2px rgba(39,48,74,.1); --gloss: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,0) 55%);
+  --shadow: var(--hl), 0 1px 0 rgba(39,48,74,.06), 0 10px 26px -14px rgba(39,48,74,.3);
+  --shadow-lift: var(--hl), 0 2px 0 rgba(39,48,74,.06), 0 20px 40px -18px rgba(39,48,74,.4);
+  --scrim: rgba(30,36,55,.38); --grain: .075; --pm: #2f3a55;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; margin: 0; }
+button { background: none; border: 0; padding: 0; cursor: pointer; }
+::placeholder { color: var(--ink-3); opacity: 1; }
+input, select, textarea, progress { accent-color: var(--shu); }
+img, svg, video, canvas { display: block; max-width: 100%; }
+
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+.muted { color: var(--ink-3); }
+.hidden { display: none !important; }
+
+.scroll { scrollbar-width: thin; scrollbar-color: var(--line-2) transparent; }
+.scroll::-webkit-scrollbar { width: 9px; height: 9px; }
+.scroll::-webkit-scrollbar-thumb { background: var(--line-2); border-radius: 9px; border: 2px solid transparent; background-clip: padding-box; }
+
+.app { position: relative; z-index: 1; display: flex; flex-direction: column; height: 100%; }
+header.top { flex: none; display: flex; align-items: center; gap: 14px; padding: 10px 22px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 15px; font-weight: 650; letter-spacing: -.01em; white-space: nowrap; }
+.seal { width: 30px; height: 30px; border-radius: 50%; background: var(--shu); display: grid; place-items: center; box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.18), 0 0 0 2.5px var(--paper), 0 0 0 4px var(--navy); }
+.seal svg { width: 22px; height: 22px; }
+.search { flex: 1; max-width: 560px; margin-left: 8px; position: relative; }
+.search input { width: 100%; height: 34px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--paper); padding: 0 34px 0 36px; outline: none; box-shadow: var(--well); }
+.search input:focus { border-color: var(--shu); box-shadow: 0 0 0 1px var(--shu), 0 0 0 4px var(--shu-soft); }
+.search svg { position: absolute; left: 11px; top: 9px; width: 16px; height: 16px; color: var(--ink-3); }
+.search kbd { position: absolute; right: 9px; top: 7px; }
+kbd { font: 11px ui-monospace, Menlo, monospace; padding: 2px 6px; border-radius: 5px; border: 1px solid var(--line-2); border-bottom-width: 2px; background: var(--paper-2); color: var(--ink-2); white-space: nowrap; box-shadow: var(--hl); }
+.spacer { flex: 1; }
+.chip-status { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--paper); font-size: 13px; white-space: nowrap; box-shadow: var(--hl); }
+.chip-status .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink-3); }
+.chip-status.on { border-color: var(--matcha); background: var(--matcha-soft); color: var(--matcha); font-weight: 600; box-shadow: 0 0 12px -2px var(--matcha); }
+.chip-status.on .dot { background: var(--matcha); box-shadow: 0 0 0 3px var(--matcha-soft), 0 0 8px var(--matcha); }
+.chip-status.rec .dot { background: var(--shu); box-shadow: 0 0 0 3px var(--shu-soft); animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+.tabs { display: flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); box-shadow: var(--well); }
+.tabs button { height: 28px; padding: 0 12px; border-radius: 7px; color: var(--ink-2); font-size: 13px; }
+.tabs button[aria-selected="true"] { background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
+
+.layout { flex: 1; min-height: 0; display: flex; }
+main { flex: 1; min-width: 0; min-height: 0; overflow: auto; }
+.wrap { max-width: 1320px; margin: 0 auto; padding: 0 20px 48px; }
+#tab-logs, #tab-settings { padding-top: 18px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 34px; padding: 0 14px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--paper); color: var(--ink); font-size: 13px; font-weight: 600; white-space: nowrap; box-shadow: var(--hl), 0 1px 1px rgba(0,0,0,.12); }
+.btn:hover { border-color: var(--ink-3); }
+.btn:disabled { opacity: .5; cursor: default; }
+.btn.primary { background-color: var(--shu); background-image: var(--gloss); border-color: var(--shu); color: var(--shu-ink); box-shadow: var(--hl-strong), 0 1px 2px rgba(0,0,0,.25); }
+.btn.primary:hover { filter: brightness(1.05); }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--ink-2); box-shadow: none; }
+.btn.ghost:hover { background: var(--bg-2); }
+.btn.small { height: 28px; padding: 0 10px; font-size: 12px; border-radius: 8px; }
+.btn svg { width: 16px; height: 16px; flex: none; }
+.icon-btn { width: 32px; height: 32px; display: inline-grid; place-items: center; border-radius: 8px; color: var(--ink-2); }
+.icon-btn:hover { background: var(--bg-2); color: var(--ink); }
+.btn:focus-visible, .icon-btn:focus-visible, .vtab:focus-visible, .nrow:focus-visible, .tabs button:focus-visible, .seg button:focus-visible, .chips button:focus-visible, .swatches button:focus-visible, .magic:focus-visible, .keyrec:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+.icon-btn svg { width: 17px; height: 17px; }
+
+.snav { flex: none; width: 216px; overflow: auto; padding: 10px 8px 24px; border-right: 1px solid var(--line); }
+.nsec + .nsec { margin-top: 16px; }
+.nsec h4 { margin: 0 0 4px; padding: 0 8px; font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+.nrow { display: flex; align-items: center; gap: 8px; width: 100%; height: 28px; padding: 0 8px; border-radius: 7px; color: var(--ink-2); font-size: 13px; text-align: left; }
+.nrow:hover { background: var(--bg-2); color: var(--ink); }
+.nrow[aria-pressed="true"] { background: var(--paper); color: var(--ink); font-weight: 600; box-shadow: var(--shadow); }
+.nrow svg { width: 15px; height: 15px; flex: none; color: var(--ink-3); }
+.nrow[data-capture="record"] svg { color: var(--shu); }
+.nrow .lb { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nrow .n { color: var(--ink-3); font-size: 12px; font-weight: 400; font-variant-numeric: tabular-nums; }
+.nrow kbd { font-size: 10.5px; padding: 1px 4px; border: 0; background: var(--bg-2); color: var(--ink-3); }
+.pip { width: 15px; height: 15px; flex: none; display: grid; place-items: center; }
+.pip::after { content: ""; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid var(--ink-3); }
+.nrow[aria-pressed="true"] .pip::after { background: var(--shu); border-color: var(--shu); box-shadow: inset 0 1px 0 rgba(255,255,255,.35); }
+.vbar { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: 2px; height: 46px; background: var(--bg); border-bottom: 1px solid var(--line); }
+.vbar > .icon-btn { margin: 0 4px 0 -8px; }
+.vtab { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 9px; border-radius: 7px; color: var(--ink-3); font-size: 13px; white-space: nowrap; }
+.vtab:hover { background: var(--bg-2); color: var(--ink); }
+.vtab svg { width: 15px; height: 15px; }
+.vtab[aria-pressed="true"] { color: var(--ink); font-weight: 600; }
+.vtab[aria-pressed="true"]::after { content: ""; position: absolute; left: 8px; right: 8px; bottom: -8px; height: 2px; border-radius: 2px; background: var(--ink); }
+.vright { margin-left: auto; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.vbar .select { height: 30px; border-radius: 8px; font-size: 12.5px; background-position: calc(100% - 15px) 13px, calc(100% - 10px) 13px; }
+.off-banner { margin-top: 14px; display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 12px; border-radius: 10px; border: 1px solid var(--line-2); background: var(--paper); box-shadow: var(--hl); }
+.off-banner p { margin: 0; flex: 1; min-width: 0; color: var(--ink-2); font-size: 12.5px; }
+
+.seg { display: inline-flex; gap: 2px; padding: 3px; border-radius: 10px; background: var(--bg-2); border: 1px solid var(--line); box-shadow: var(--well); }
+.seg button { height: 28px; padding: 0 11px; border-radius: 7px; color: var(--ink-2); font-size: 12.5px; white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--paper); color: var(--ink); box-shadow: var(--shadow); }
+.seg button .n { color: var(--ink-3); margin-left: 4px; font-variant-numeric: tabular-nums; }
+.select { height: 34px; border-radius: 9px; border: 1px solid var(--line-2); background-color: var(--paper); padding: 0 30px 0 11px; font-size: 13px; box-shadow: var(--hl);
+  appearance: none; -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--ink-3) 50%), linear-gradient(135deg, var(--ink-3) 50%, transparent 50%);
+  background-position: calc(100% - 15px) 15px, calc(100% - 10px) 15px; background-size: 5px 5px, 5px 5px; background-repeat: no-repeat; }
+.count { color: var(--ink-3); font-size: 12.5px; white-space: nowrap; }
+
+.day { margin: 16px 0 8px; display: flex; align-items: baseline; gap: 12px; }
+.day h3 { margin: 0; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.day .rule { flex: 1; height: 1px; background: var(--line); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(208px, 1fr)); gap: 12px; }
+
+.card { position: relative; display: flex; flex-direction: column; text-align: left; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); padding: 6px 6px 0; transition: box-shadow .14s ease; min-width: 0; }
+.card:hover { box-shadow: var(--shadow-lift); border-color: var(--line-2); }
+.card:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+.card.sel { border-color: var(--shu); box-shadow: 0 0 0 2px var(--shu-soft), var(--shadow-lift); }
+.media { position: relative; aspect-ratio: 16 / 10; border-radius: 6px; overflow: hidden; background: var(--bg-2); border: 1px solid var(--line); }
+.media::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(255,255,255,.06), inset 0 1px 0 rgba(255,255,255,.08); pointer-events: none; }
+.media img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.media .ph { position: absolute; inset: 0; display: grid; place-items: center; color: var(--ink-3); font-size: 12px; }
+.play { position: absolute; left: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 5px; height: 22px; padding: 0 8px; border-radius: 6px; background: rgba(20,16,14,.78); color: #fbf6ec; font-size: 11.5px; font-weight: 600; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.12); }
+.play svg { width: 10px; height: 10px; }
+.tag-styled { position: absolute; right: 8px; bottom: 8px; height: 22px; padding: 0 8px; border-radius: 6px; background: rgba(20,16,14,.78); color: #fbf6ec; font-size: 11px; display: inline-flex; align-items: center; box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), inset 0 1px 0 rgba(255,255,255,.12); }
+.cbody { padding: 7px 3px 8px; min-width: 0; }
+.cname { font-size: 12.5px; font-weight: 600; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmeta { margin-top: 3px; display: flex; gap: 6px; align-items: center; color: var(--ink-3); font-size: 11.5px; min-width: 0; }
+.cmeta span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmeta .app { min-width: 0; }
+.snip { margin-top: 6px; font-size: 11.5px; color: var(--ink-2); background: var(--bg-2); border-radius: 6px; padding: 4px 7px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.cmeta .when { margin-left: auto; flex: none; font-variant-numeric: tabular-nums; }
+.mark { flex: none; display: inline-grid; place-items: center; width: 15px; height: 15px; color: var(--matcha); }
+.mark svg { width: 13px; height: 13px; }
+.mark.warn { color: var(--warn); font-weight: 700; font-size: 12px; }
+.shared-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ai); flex: none; }
+
+.it:focus-visible { outline: 2px solid var(--shu); outline-offset: 2px; }
+
+.rows { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); overflow: hidden; box-shadow: var(--shadow); }
+.lrow { display: flex; align-items: center; gap: 12px; width: 100%; padding: 7px 12px; text-align: left; border-top: 1px solid var(--line); min-width: 0; }
+.lrow:first-child { border-top: 0; }
+.lrow:hover { background: var(--paper-2); }
+.lrow.sel { background: var(--shu-soft); }
+.lthumb { position: relative; flex: none; width: 72px; height: 45px; border-radius: 5px; overflow: hidden; background: var(--bg-2); border: 1px solid var(--line); }
+.lthumb img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+.lthumb .play { left: 3px; bottom: 3px; height: 16px; padding: 0 5px; font-size: 10px; }
+.lmain { flex: 1; min-width: 0; }
+.lname, .lsub { display: block; }
+.lname { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lsub { font-size: 12px; color: var(--ink-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lside { flex: none; display: flex; align-items: center; gap: 8px; color: var(--ink-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+.tablewrap { border: 1px solid var(--line); border-radius: 10px; background: var(--paper); overflow: auto; margin-top: 12px; box-shadow: var(--shadow); }
+table.dt { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.dt th { text-align: left; font-weight: 600; font-size: 12px; color: var(--ink-3); padding: 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+table.dt th button { width: 100%; text-align: left; padding: 9px 12px; display: inline-flex; gap: 4px; align-items: center; }
+table.dt th button:hover { color: var(--ink); }
+table.dt th[aria-sort] button { color: var(--ink); }
+table.dt td { padding: 6px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; max-width: 170px; overflow: hidden; text-overflow: ellipsis; color: var(--ink-2); }
+table.dt td.nm { color: var(--ink); font-weight: 600; max-width: 250px; }
+table.dt td.num { font-variant-numeric: tabular-nums; }
+table.dt tbody tr { cursor: pointer; }
+table.dt tbody tr:hover td { background: var(--paper-2); }
+table.dt tbody tr.sel td { background: var(--shu-soft); }
+table.dt tbody tr:last-child td { border-bottom: 0; }
+.tthumb { width: 44px; height: 28px; border-radius: 4px; overflow: hidden; background: var(--bg-2); border: 1px solid var(--line); }
+.tthumb img { width: 100%; height: 100%; object-fit: cover; object-position: top center; }
+
+.board { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px; margin-top: 12px; align-items: flex-start; }
+.bcol { flex: none; width: 260px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px; box-shadow: var(--well); }
+.bcol h3 { margin: 2px 4px 8px; font-size: 13px; font-weight: 600; display: flex; gap: 6px; align-items: baseline; }
+.bcol h3 .n { color: var(--ink-3); font-weight: 400; font-size: 12px; }
+.bcards { display: flex; flex-direction: column; gap: 8px; }
+.bcard { display: block; width: 100%; text-align: left; border-radius: 8px; background: var(--paper); border: 1px solid var(--line); padding: 6px; box-shadow: var(--hl); }
+.bcard:hover { border-color: var(--line-2); box-shadow: var(--shadow); }
+.bcard.sel { border-color: var(--shu); }
+.bcard .media { aspect-ratio: 16 / 9; border-radius: 5px; }
+.bcard .lname { margin-top: 6px; }
+.bcard .lsub { margin-top: 1px; }
+
+.empty { margin: 40px auto; max-width: 460px; text-align: center; color: var(--ink-2); }
+.empty svg { width: 220px; margin: 0 auto 14px; }
+.empty h2 { font-size: 18px; color: var(--ink); margin: 0 0 6px; }
+.more { display: flex; justify-content: center; margin-top: 22px; }
+
+.drawer-scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 20; }
+.drawer:focus { outline: none; }
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(520px, 100vw); z-index: 21; background: var(--bg); border-left: 1px solid var(--line); box-shadow: -20px 0 40px -20px rgba(0,0,0,.4); display: flex; flex-direction: column; }
+.dhead { display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.dhead .grow { flex: 1; min-width: 0; font-size: 12px; color: var(--ink-3); }
+.dbody { flex: 1; overflow: auto; padding: 16px 18px 40px; }
+.preview { border-radius: 10px; overflow: hidden; background: var(--bg-2); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.preview img, .preview video { width: 100%; max-height: 360px; object-fit: contain; background: var(--bg-2); }
+.namebox { display: flex; gap: 6px; margin: 14px 0 10px; align-items: center; }
+.namebox input { flex: 1; min-width: 0; height: 38px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--paper); padding: 0 11px; font-weight: 600; font-size: 14px; outline: none; box-shadow: var(--well); }
+.namebox input:focus { border-color: var(--shu); box-shadow: 0 0 0 1px var(--shu), 0 0 0 4px var(--shu-soft); }
+.magic { width: 38px; height: 38px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--paper); display: grid; place-items: center; color: var(--gold); box-shadow: var(--hl); }
+.magic:hover { border-color: var(--gold); }
+.magic svg { width: 19px; height: 19px; }
+.magic.busy svg { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.drow { display: flex; flex-wrap: wrap; gap: 6px; }
+.sharebox { margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--ai-soft); display: flex; gap: 8px; align-items: center; font-size: 12.5px; box-shadow: var(--hl), inset 0 0 0 1px rgba(156,198,214,.18); }
+.sharebox svg { width: 16px; height: 16px; flex: none; }
+.sharebox a { color: var(--ai); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+.sec { margin-top: 20px; }
+.sec h4 { margin: 0 0 8px; font-size: 11.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.sec h4 .rule { flex: 1; height: 1px; background: var(--line); }
+.kv { display: grid; grid-template-columns: 112px 1fr; gap: 6px 12px; font-size: 13px; }
+.kv dt { color: var(--ink-3); }
+.kv dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.verify { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+.verify.ok { color: var(--matcha); }
+.verify.bad { color: var(--warn); }
+.field { width: 100%; border-radius: 9px; border: 1px solid var(--line-2); background: var(--paper); padding: 8px 10px; outline: none; font-size: 13px; box-shadow: var(--well); }
+.field:focus { border-color: var(--shu); box-shadow: 0 0 0 1px var(--shu), 0 0 0 4px var(--shu-soft); }
+textarea.field { resize: vertical; min-height: 64px; }
+.ocr { max-height: 200px; overflow: auto; white-space: pre-wrap; font-size: 12.5px; background: var(--paper); border: 1px solid var(--line); border-radius: 9px; padding: 10px 12px; color: var(--ink-2); box-shadow: var(--well); }
+.children { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.children button { border-radius: 8px; overflow: hidden; border: 1px solid var(--line); aspect-ratio: 4/3; background: var(--bg-2); }
+.children img { width: 100%; height: 100%; object-fit: cover; }
+.hist { list-style: none; margin: 0; padding: 0; font-size: 12.5px; }
+.hist li { display: grid; grid-template-columns: 70px 1fr; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--line); }
+.hist time { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+.logs-bar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+.logs-bar input { height: 34px; border-radius: 9px; border: 1px solid var(--line-2); background: var(--paper); padding: 0 11px; min-width: 220px; outline: none; box-shadow: var(--well); }
+.logs-bar input:focus { border-color: var(--shu); box-shadow: 0 0 0 1px var(--shu), 0 0 0 4px var(--shu-soft); }
+table.log { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.log th { text-align: left; font-weight: 600; font-size: 11.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); padding: 10px 14px; border-bottom: 1px solid var(--line); }
+table.log td { padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.log tr:last-child td { border-bottom: 0; }
+table.log td.t { white-space: nowrap; color: var(--ink-3); font-variant-numeric: tabular-nums; width: 1%; }
+table.log td.m { overflow-wrap: anywhere; }
+.lvl { display: inline-block; padding: 1px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+.lvl.info { background: var(--matcha-soft); color: var(--matcha); }
+.lvl.warn { background: var(--warn-soft); color: var(--warn); }
+.lvl.error { background: var(--shu-soft); color: var(--shu); }
+.kind { color: var(--ink-2); white-space: nowrap; }
+.link { color: var(--ai); font-weight: 600; }
+
+.settings { display: grid; grid-template-columns: repeat(auto-fill, minmax(440px, 1fr)); gap: 18px; align-items: start; }
+.sbox { padding: 18px 20px; }
+.sbox h2 { margin: 0 0 4px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.sbox > p { margin: 0 0 14px; color: var(--ink-3); font-size: 12.5px; }
+.row { display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px dashed var(--line); min-width: 0; }
+.row:first-of-type { border-top: 0; }
+.row .lbl { flex: 1; min-width: 0; }
+.row .lbl small { display: block; color: var(--ink-3); font-size: 12px; }
+.row input[type="text"] { height: 32px; border-radius: 8px; border: 1px solid var(--line-2); background: var(--paper-2); padding: 0 9px; min-width: 0; outline: none; box-shadow: var(--well); }
+.row input[type="text"]:focus { border-color: var(--shu); box-shadow: 0 0 0 1px var(--shu); }
+.switch { position: relative; width: 38px; height: 22px; flex: none; }
+.switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+.switch span { position: absolute; inset: 0; border-radius: 999px; background: var(--line-2); transition: background .15s; pointer-events: none; box-shadow: var(--well); }
+.switch span::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--paper); box-shadow: var(--hl), 0 0 0 .5px rgba(0,0,0,.2), 0 1px 2px rgba(0,0,0,.3); transition: transform .15s; }
+.switch input:checked + span { background-color: var(--matcha); background-image: var(--gloss); box-shadow: inset 0 1px 0 rgba(255,255,255,.22); }
+.switch input:checked + span::after { transform: translateX(16px); }
+.switch input:focus-visible + span { box-shadow: 0 0 0 3px var(--matcha-soft); }
+.keyrec { min-width: 92px; height: 30px; border-radius: 8px; border: 1px solid var(--line-2); border-bottom-width: 2px; background: var(--paper-2); font: 600 13px ui-monospace, Menlo, monospace; padding: 0 10px; box-shadow: var(--hl); }
+.keyrec.listen { border-color: var(--shu); color: var(--shu); background: var(--shu-soft); }
+.err { color: var(--shu); font-size: 12px; }
+.pathrow { display: flex; gap: 6px; width: 100%; }
+.pathrow input { flex: 1; }
+.tokens { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.tokens button { font: 11px ui-monospace, Menlo, monospace; padding: 2px 6px; border-radius: 5px; background: var(--bg-2); color: var(--ink-2); border: 1px solid var(--line); box-shadow: var(--hl); }
+.sys-list { font-size: 12px; color: var(--ink-3); margin: 6px 0 0; padding: 0; list-style: none; }
+.sys-list li { display: flex; gap: 8px; }
+
+.modal-scrim { position: fixed; inset: 0; background: var(--scrim); z-index: 40; display: grid; place-items: center; padding: 20px; }
+.modal { width: min(460px, 100%); background: var(--paper); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow-lift); padding: 20px 22px; }
+.modal h3 { margin: 0 0 8px; font-size: 17px; }
+.modal p { margin: 0 0 10px; color: var(--ink-2); }
+.modal .foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+.snack { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 60; display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 10px; background: var(--ink); color: var(--bg); box-shadow: var(--shadow-lift); font-size: 13px; max-width: min(640px, 92vw); }
+.snack.err { background-color: var(--shu); background-image: var(--gloss); color: var(--shu-ink); box-shadow: var(--hl-strong), var(--shadow-lift); }
+.snack svg { width: 16px; height: 16px; flex: none; color: var(--matcha-soft); background: var(--matcha); border-radius: 50%; padding: 2px; }
+.btn.done { border-color: var(--matcha); background: var(--matcha-soft); color: var(--matcha); box-shadow: var(--hl), 0 0 0 1px var(--matcha); }
+
+.studio { position: fixed; inset: 0; z-index: 30; display: grid; grid-template-columns: 1fr 340px; background: var(--bg); }
+.stage { position: relative; display: grid; place-items: center; padding: 28px; min-width: 0; min-height: 0; overflow: hidden;
+  background-color: var(--bg-2);
+  background-image: linear-gradient(45deg, var(--bg) 25%, transparent 25%), linear-gradient(-45deg, var(--bg) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, var(--bg) 75%), linear-gradient(-45deg, transparent 75%, var(--bg) 75%);
+  background-size: 22px 22px; background-position: 0 0, 0 11px, 11px -11px, -11px 0; }
+.stage canvas { max-width: 100%; max-height: calc(100vh - 90px); width: auto; height: auto; box-shadow: 0 30px 60px -30px rgba(0,0,0,.5); }
+.stage .meta { position: absolute; left: 22px; bottom: 16px; font-size: 12px; color: var(--ink-3); }
+.stage .loading { color: var(--ink-3); }
+.side { border-left: 1px solid var(--line); background: var(--paper); display: flex; flex-direction: column; min-height: 0; }
+.side header { display: flex; align-items: center; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.side header h2 { margin: 0; font-size: 16px; flex: 1; }
+.side .body { flex: 1; overflow: auto; padding: 6px 16px 16px; }
+.side footer { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--line); }
+.side footer .btn { flex: 1; }
+.ctl { margin-top: 14px; }
+.ctl > label, .ctl > .t { display: flex; justify-content: space-between; font-size: 12px; font-weight: 600; color: var(--ink-2); margin-bottom: 7px; }
+.ctl > label output { color: var(--ink-3); font-weight: 400; font-variant-numeric: tabular-nums; }
+.swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+.swatches button { position: relative; aspect-ratio: 3 / 2; border-radius: 7px; overflow: hidden; border: 2px solid transparent; outline: 1px solid var(--line); }
+.swatches button[aria-pressed="true"] { border-color: var(--shu); outline-color: var(--shu); }
+.swatches canvas { width: 100%; height: 100%; }
+.swatches .nm { position: absolute; left: 0; right: 0; bottom: 0; font-size: 9.5px; padding: 1px 4px; background: rgba(0,0,0,.45); color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transition: opacity .12s; }
+.swatches button:hover .nm { opacity: 1; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chips button { height: 28px; padding: 0 10px; border-radius: 7px; border: 1px solid var(--line-2); font-size: 12px; background: var(--paper-2); box-shadow: var(--hl); }
+.chips button[aria-pressed="true"] { background-color: var(--shu); background-image: var(--gloss); border-color: var(--shu); color: var(--shu-ink); box-shadow: var(--hl-strong); }
+input[type="range"] { width: 100%; height: 18px; background: transparent; appearance: none; -webkit-appearance: none; }
+input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: var(--line-2); }
+input[type="range"]::-moz-range-track { height: 4px; border-radius: 4px; background: var(--line-2); }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; margin-top: -6px; border-radius: 50%; background: var(--shu); border: 2px solid var(--paper); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 0 .5px rgba(0,0,0,.25), 0 1px 3px rgba(0,0,0,.35); }
+input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--shu); border: 2px solid var(--paper); }
+
+.stage.reel { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.stage.reel canvas { max-height: calc(100vh - 150px); }
+.stage.reel .meta { top: 14px; bottom: auto; }
+.tlbar { width: min(100%, 960px); display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px; background: var(--paper); border: 1px solid var(--line); box-shadow: var(--shadow); }
+.tlbar .time { min-width: 88px; text-align: right; font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.tlbar .icon-btn svg { width: 14px; height: 14px; }
+.tl { position: relative; flex: 1; height: 28px; border-radius: 7px; background: var(--bg-2); box-shadow: var(--well); cursor: pointer; }
+.tl .zg { position: absolute; top: 4px; bottom: 4px; border-radius: 5px; background: var(--ai-soft); border: 1px solid var(--sky); pointer-events: none; }
+.tl .ck { position: absolute; top: 50%; width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px; padding: 0; border-radius: 50%; background: var(--shu); border: 2px solid var(--paper); box-shadow: 0 1px 2px rgba(0,0,0,.4); }
+.tl .ck[aria-pressed="false"] { background: var(--line-2); }
+.tl .ph { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 2px; background: var(--ink); pointer-events: none; }
+.zoomnote { margin: 0 0 8px; font-size: 12px; color: var(--ink-2); line-height: 1.45; }
+.zoomnote + .btn { margin-bottom: 4px; }
+.ctl small.hint { display: block; margin-top: 4px; font-size: 11.5px; color: var(--ink-3); }
+
+.placeholder { padding: 40px; text-align: center; color: var(--ink-3); }
+@media (max-width: 860px) {
+  .snav { width: 188px; }
+  .vtab span { display: none; }
+  .studio { grid-template-columns: 1fr; grid-template-rows: 1fr 46%; }
+  .side { border-left: 0; border-top: 1px solid var(--line); }
+  header.top { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><div class="seal"><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="hgMetal" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbfbfc"/><stop offset=".55" stop-color="#d3d7dd"/><stop offset="1" stop-color="#a4abb5"/></linearGradient><linearGradient id="hgRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef0f3"/><stop offset="1" stop-color="#8d95a1"/></linearGradient></defs><path d="M2.6 7V3.6H6M18 3.6h3.4V7M2.6 17v3.4H6M21.4 17v3.4H18" fill="none" stroke="#fbf6ec" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="13.6" y="6" width="3.2" height="1.9" rx=".5" fill="url(#hgRing)"/><rect x="5" y="7.5" width="14" height="9.6" rx="1.6" fill="url(#hgMetal)"/><path d="M5 10.7h14v4.8a1.6 1.6 0 0 1-1.6 1.6H6.6A1.6 1.6 0 0 1 5 15.5z" fill="#22252b"/><rect x="6.5" y="8.4" width="2.7" height="1.4" rx=".4" fill="#2b4568"/><circle cx="12.6" cy="12.4" r="3.6" fill="url(#hgRing)"/><circle cx="12.6" cy="12.4" r="2.5" fill="#14161a"/><circle cx="12.6" cy="12.4" r="1.2" fill="#2b4568"/><circle cx="12" cy="11.8" r=".5" fill="#fbf6ec"/></svg></div>Hagaki</div>
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input id="q" type="search" placeholder="Search names, apps, window titles and text in images" autocomplete="off" />
+      <kbd>/</kbd>
+    </label>
+    <div class="spacer"></div>
+    <button id="statusChip" class="chip-status" type="button" title="Background service"><span class="dot"></span><span id="statusText">Checking…</span></button>
+    <nav class="tabs" role="tablist">
+      <button role="tab" data-tab="gallery" aria-selected="true">Gallery</button>
+      <button role="tab" data-tab="logs" aria-selected="false">Logs</button>
+      <button role="tab" data-tab="settings" aria-selected="false">Settings</button>
+    </nav>
+  </header>
+  <div class="layout">
+    <aside id="snav" class="snav scroll" aria-label="Capture and filters"></aside>
+    <main id="main" class="scroll">
+      <div class="wrap">
+        <section id="tab-gallery"></section>
+        <section id="tab-logs" class="hidden"></section>
+        <section id="tab-settings" class="hidden"></section>
+      </div>
+    </main>
+  </div>
+</div>
+<div id="drawerRoot"></div>
+<div id="studioRoot"></div>
+<div id="modalRoot"></div>
+<div id="snackRoot"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  const ICONS = {
+    area: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M12 9v6M9 12h6"/></svg>',
+    window: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/><circle cx="6" cy="7" r=".6" fill="currentColor"/><circle cx="8.2" cy="7" r=".6" fill="currentColor"/></svg>',
+    screen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+    record: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>',
+    folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
+    style: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><rect x="7" y="7" width="10" height="8" rx="1.5"/><path d="M7 18.5h6"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+    reveal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 4h6v6M20 4l-9 9"/><path d="M19 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/></svg>',
+    trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>',
+    close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+    left: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 6-6 6 6 6"/></svg>',
+    right: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m9 6 6 6-6 6"/></svg>',
+    magic: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m5 19 10-10M13 7l2-2 4 4-2 2"/><path d="M8 3v3M6.5 4.5h3M19 14v3M17.5 15.5h3M4 10v2M3 11h2"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>',
+    play: '<svg viewBox="0 0 10 10" fill="currentColor"><path d="M2 1l7 4-7 4z"/></svg>',
+    pause: '<svg viewBox="0 0 10 10" fill="currentColor"><path d="M2 1h2.2v8H2zM5.8 1H8v8H5.8z"/></svg>',
+    link: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+    text: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6V4h16v2M12 4v16M9 20h6"/></svg>',
+    open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 15 5-5 4 4 3-3 6 6"/></svg>',
+    vgallery: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>',
+    vlist: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3.5" y="4.5" width="5" height="4" rx="1"/><rect x="3.5" y="15.5" width="5" height="4" rx="1"/><path d="M12 6.5h8.5M12 17.5h8.5"/></svg>',
+    vtable: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 9.5v10"/></svg>',
+    nav: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M9.5 4.5v15"/></svg>',
+    vboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="4.5" width="5" height="15" rx="1.5"/><rect x="10" y="4.5" width="5" height="10" rx="1.5"/><rect x="16.5" y="4.5" width="4" height="12" rx="1.5"/></svg>',
+  };
+  const CAPTURES = [["region", "Area", "area"], ["window", "Window", "window"], ["screen", "Screen", "screen"], ["record", "Record", "record"]];
+  const KIND_ICONS = { all: "folder", image: "screen", video: "play", styled: "style" };
+  const VIEWS = [["gallery", "Gallery", "vgallery"], ["list", "List", "vlist"], ["table", "Table", "vtable"], ["board", "Board", "vboard"]];
+  const GROUPS = [["app", "App"], ["kind", "Type"], ["day", "Day"]];
+  const KIND_LABELS = { image: "Screenshot", video: "Recording", styled: "Styled" };
+  const COLUMNS = [["name", "Name"], ["kind", "Type"], ["app", "App"], ["title", "Window"], ["dims", "Size"], ["bytes", "File size"], ["created", "Captured"]];
+
+  const KINDS = [["all", "All"], ["image", "Screenshots"], ["video", "Recordings"], ["styled", "Styled"]];
+  const DAYS = [["0", "Any time"], ["1", "Today"], ["7", "Last 7 days"], ["30", "Last 30 days"], ["365", "Last year"]];
+  const SOURCES = { region: "Area", window: "Window", screen: "Full screen", record: "Screen recording", web: "Web page", style: "Style editor", import: "Import", paste: "Clipboard" };
+  const ACTION_LABELS = { region: "Capture an area", window: "Capture the front window", screen: "Capture the full screen", record: "Record an area", open: "Open Hagaki" };
+
+  const state = {
+    preview: false,
+    list: null, listKey: "", limit: 120,
+    settings: null,
+    daemon: { running: false, autostart: false },
+    dstat: null,
+    item: null, itemData: null,
+    stampMtime: null, stamp: null,
+    busy: {},
+    logs: null,
+  };
+
+  function isPreview() {
+    if (new URLSearchParams(location.search).get("_preview") === "1") return true;
+    try {
+      let w = window;
+      while (w.parent && w.parent !== w) {
+        w = w.parent;
+        if (new URLSearchParams(w.location.search).get("_preview") === "1") return true;
+      }
+    } catch (e) { }
+    return false;
+  }
+
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const P = {
+    get: (k, d) => { const v = fused.params.get(k); return v == null || v === "" ? d : v; },
+    set: (k, v) => fused.params.set(k, v == null ? "" : String(v)),
+  };
+
+  function api(op, params, opts) {
+    const p = Object.assign({ op }, params || {});
+    for (const k of Object.keys(p)) p[k] = p[k] == null ? "" : (typeof p[k] === "object" ? JSON.stringify(p[k]) : String(p[k]));
+    return fused.runPython("api.py", p, Object.assign({ key: null }, opts || {}));
+  }
+
+  function errText(e) {
+    if (!e) return "Unknown error";
+    const m = e.message || String(e);
+    const lines = m.split("\n").filter(Boolean);
+    return lines[lines.length - 1].replace(/^\w+Error: /, "");
+  }
+
+  let snackTimer = null;
+  function snack(msg, isErr, done) {
+    const root = $("#snackRoot");
+    root.innerHTML = `<div class="snack${isErr ? " err" : ""}" role="status">${done ? ICONS.check : ""}${esc(msg)}</div>`;
+    clearTimeout(snackTimer);
+    snackTimer = setTimeout(() => { root.innerHTML = ""; }, isErr ? 6000 : 2600);
+  }
+
+  function fmtBytes(n) {
+    if (!n && n !== 0) return "";
+    const u = ["B", "KB", "MB", "GB"]; let i = 0; let v = n;
+    while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+    return (i ? v.toFixed(v < 10 ? 1 : 0) : v) + " " + u[i];
+  }
+  function fmtDur(s) { s = Math.round(s || 0); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); }
+  const timeFmt = new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit" });
+  const dateFmt = new Intl.DateTimeFormat(undefined, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const fullFmt = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "medium" });
+  function dayLabel(ts) {
+    const d = new Date(ts * 1000); const now = new Date();
+    const start = (x) => new Date(x.getFullYear(), x.getMonth(), x.getDate()).getTime();
+    const diff = Math.round((start(now) - start(d)) / 86400000);
+    if (diff === 0) return "Today";
+    if (diff === 1) return "Yesterday";
+    return dateFmt.format(d);
+  }
+  function ago(ts) {
+    const s = Math.max(0, Date.now() / 1000 - ts);
+    if (s < 60) return "now";
+    if (s < 3600) return Math.floor(s / 60) + " min ago";
+    if (s < 86400) return Math.floor(s / 3600) + " h ago";
+    return Math.floor(s / 86400) + " d ago";
+  }
+  function keyLabel(action) {
+    const d = state.dstat && state.dstat.bound && state.dstat.bound[action];
+    if (d && d.length) return d[d.length - 1];
+    return (state.settings && state.settings.hotkey_labels && state.settings.hotkey_labels[action]) || "";
+  }
+  function thumbUrl(it) { return it.thumb ? fused.rawUrl(it.thumb) : (it.kind !== "video" ? fused.rawUrl(it.path) : ""); }
+
+  function renderPreviewPlaceholder() {
+    $("#statusText").textContent = "Preview";
+    $("#snav").innerHTML = navHtml(null);
+    $("#tab-gallery").innerHTML = `<div class="placeholder">Hagaki saves each screenshot, copies it to the clipboard and adds it to this gallery.</div>`;
+  }
+
+  function storedPref(k, d) { try { return localStorage.getItem("hagaki." + k) || d; } catch (e) { return d; } }
+  function setPref(k, v) { try { localStorage.setItem("hagaki." + k, v); } catch (e) { } P.set(k, v); }
+  function curNav() { return P.get("nav", storedPref("nav", "on")) === "off" ? "off" : "on"; }
+  function curView() { const v = P.get("view", storedPref("view", "gallery")); return VIEWS.some((x) => x[0] === v) ? v : "gallery"; }
+  function curGroup() { const g = P.get("group", storedPref("group", "app")); return GROUPS.some((x) => x[0] === g) ? g : "app"; }
+  function curSort() {
+    const [col, dir] = P.get("sort", storedPref("sort", "created:desc")).split(":");
+    return { col: COLUMNS.some((c) => c[0] === col) ? col : "created", dir: dir === "asc" ? "asc" : "desc" };
+  }
+
+  async function refreshDaemon() {
+    try { state.daemon = await fused.daemon.status(); } catch (e) { state.daemon = { running: false, autostart: false }; }
+    renderStatus();
+    if (state.daemon.autostart && !state.daemon.running && !state.healed) {
+      state.healed = true;
+      try { await fused.daemon.start(); } catch (e) { snack("Hagaki did not start: " + errText(e), true); }
+      setTimeout(refreshDaemon, 600);
+    }
+  }
+
+  function renderStatus() {
+    const chip = $("#statusChip");
+    const d = state.daemon || {};
+    const rec = state.dstat && state.dstat.recording;
+    chip.classList.toggle("on", !!d.running && !rec);
+    chip.classList.toggle("rec", !!rec);
+    let text = d.running ? "On" : d.autostart ? "Starting…" : "Off";
+    if (d.running && state.dstat && state.dstat.paused) text = "Paused";
+    if (rec) text = "Recording · click to stop";
+    else if (d.running && keyLabel("region")) text += " · " + keyLabel("region");
+    $("#statusText").textContent = text;
+    chip.title = rec ? "Click to stop the recording." : d.running ? "Hagaki is on" + (d.autostart ? " and starts with Fused Render" : "") + ". Click to turn it off." : "Hagaki is off. Click to turn it on.";
+  }
+
+  async function turnOn() {
+    try {
+      await fused.daemon.start();
+      await fused.daemon.setAutostart(true);
+      if (state.settings && !state.settings.settings.onboarded) await api("save_settings", { patch: { onboarded: true } });
+      snack("Hagaki is on. It starts with Fused Render.");
+    } catch (e) {
+      snack("Hagaki did not start: " + errText(e), true);
+    }
+    setTimeout(() => { refreshDaemon(); loadSettings(); }, 600);
+  }
+
+  async function turnOff() {
+    try {
+      await fused.daemon.setAutostart(false);
+      await fused.daemon.stop();
+      snack("Hagaki is off. It stays off until you turn it on.");
+    } catch (e) {
+      snack(errText(e), true);
+    }
+    setTimeout(() => { refreshDaemon().then(loadSettings); }, 500);
+  }
+
+  async function daemonCall(path, body) {
+    return fused.daemon.call(path, body || {});
+  }
+
+  async function capture(mode) {
+    if (!state.daemon.running && state.daemon.autostart) await turnOn();
+    else if (!state.daemon.running) {
+      const ok = await confirmModal("Turn on Hagaki?", "Hagaki must run in the background to capture. It also starts with Fused Render. You can change this in Settings.", "Turn on");
+      if (!ok) return;
+      await turnOn();
+    }
+    try {
+      await daemonCall("/capture", { mode });
+    } catch (e) { snack("Capture did not start: " + errText(e), true); }
+  }
+
+  function galleryKey() {
+    return [P.get("q", ""), P.get("kind", "all"), P.get("app", ""), P.get("days", "0"), state.limit].join("|");
+  }
+
+  async function loadList(force) {
+    const key = galleryKey();
+    if (!force && key === state.listKey && state.list) { renderGallery(); return; }
+    if (!state.list) renderGallery();
+    try {
+      const res = await api("list", { q: P.get("q", ""), kind: P.get("kind", "all"), app: P.get("app", ""), days: P.get("days", "0"), limit: state.limit }, { key: "list" });
+      state.list = res; state.listKey = key;
+      if (res.stamp) state.stamp = res.stamp;
+      if (res.daemon !== undefined) state.dstat = res.daemon;
+      renderGallery(); renderStatus(); renderDrawerHead();
+    } catch (e) {
+      $("#tab-gallery").innerHTML = `<div class="placeholder">The gallery did not load: ${esc(errText(e))}</div>`;
+    }
+  }
+
+  function offHtml() {
+    return state.daemon.running || state.daemon.autostart ? "" : `<div class="off-banner"><p><b>Hagaki is off.</b> Turn it on to use the shortcuts. It then starts each time Fused Render starts.</p><button class="btn primary small" data-act="turn-on" type="button">Turn on</button></div>`;
+  }
+
+  function navHtml(L) {
+    const sec = (title, rows) => `<div class="nsec"><h4>${title}</h4>${rows}</div>`;
+    const row = (attr, val, on, lead, label, n) => `<button class="nrow" ${attr}="${esc(val)}" type="button" aria-pressed="${on}">${lead}<span class="lb">${esc(label)}</span>${n == null ? "" : `<span class="n">${n}</span>`}</button>`;
+    let html = sec("Capture", CAPTURES.map(([m, t, ic]) => {
+      const k = keyLabel(m);
+      return `<button class="nrow" data-capture="${m}" type="button" title="${ACTION_LABELS[m]}${k ? ` (${esc(k)})` : ""}">${ICONS[ic]}<span class="lb">${t}</span>${k ? `<kbd>${esc(k)}</kbd>` : ""}</button>`;
+    }).join(""));
+    if (!L) return html;
+    const kind = P.get("kind", "all"); const app = P.get("app", ""); const days = P.get("days", "0");
+    const counts = (L.facets && L.facets.kinds) || {};
+    const total = (L.facets && L.facets.all) || 0;
+    const apps = ((L.facets && L.facets.apps) || []).map((a) => [a.app, a.n]);
+    if (app && !apps.some((a) => a[0] === app)) apps.push([app, 0]);
+    const pip = `<span class="pip"></span>`;
+    html += sec("Type", KINDS.map(([k, t]) => row("data-kind", k, kind === k, ICONS[KIND_ICONS[k]], t, k === "all" ? total : (counts[k] || 0))).join(""));
+    html += sec("Apps", [["", total, "All apps"], ...apps].map(([v, n, t]) => row("data-app", v, app === v, pip, t || v, n)).join(""));
+    html += sec("Date", DAYS.map(([v, t]) => row("data-days", v, days === v, pip, t, null)).join(""));
+    return html;
+  }
+
+  const shortFmt = new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" });
+  function itemSrc(it) { return it.app || SOURCES[it.source] || ""; }
+  function dimsText(it) { return it.width ? `${it.width}×${it.height}` : ""; }
+  function selCls(it) { return state.item === it.id ? " sel" : ""; }
+  function sharedHtml(it) { return it.share_url ? '<span class="shared-dot" title="Online"></span>' : ""; }
+  function markHtml(it) {
+    if (it.verify === "ok") return `<span class="mark" title="File checked: SHA-256 matches">${ICONS.check}</span>`;
+    if (it.verify) return `<span class="mark warn" title="${it.verify === "missing" ? "File is missing" : "File changed after capture"}">!</span>`;
+    return "";
+  }
+  function mediaHtml(it) {
+    const src = thumbUrl(it);
+    return (src ? `<img loading="lazy" decoding="async" alt="" src="${esc(src)}">` : `<div class="ph">No preview</div>`)
+      + (it.kind === "video" ? `<span class="play">${ICONS.play}${it.duration ? fmtDur(it.duration) : "Video"}</span>` : "");
+  }
+
+  function cardHtml(it) {
+    const dims = dimsText(it);
+    return `<button class="card it${selCls(it)}" data-id="${esc(it.id)}" type="button" title="${esc(it.name)}">
+      <div class="media">${mediaHtml(it)}${it.source === "style" ? `<span class="tag-styled">Styled</span>` : ""}</div>
+      <div class="cbody">
+        <div class="cname">${esc(it.name)}</div>
+        <div class="cmeta">${sharedHtml(it)}<span class="app">${esc(itemSrc(it))}</span>${dims ? `<span>·</span><span>${dims}</span>` : ""}<span class="when">${timeFmt.format(new Date(it.created * 1000))}</span>${markHtml(it)}</div>
+        ${it.snippet ? `<div class="snip">${esc(it.snippet)}</div>` : ""}
+      </div>
+    </button>`;
+  }
+
+  function rowHtml(it) {
+    const sub = it.snippet || [KIND_LABELS[it.kind] || it.kind, itemSrc(it), dimsText(it), fmtBytes(it.bytes)].filter(Boolean).join(" · ");
+    return `<button class="lrow it${selCls(it)}" data-id="${esc(it.id)}" type="button" title="${esc(it.name)}">
+      <span class="lthumb">${mediaHtml(it)}</span>
+      <span class="lmain"><span class="lname">${esc(it.name)}</span><span class="lsub">${esc(sub)}</span></span>
+      <span class="lside">${sharedHtml(it)}${markHtml(it)}<span>${timeFmt.format(new Date(it.created * 1000))}</span></span>
+    </button>`;
+  }
+
+  function sortVal(it, col) {
+    if (col === "dims") return (it.width || 0) * (it.height || 0);
+    if (col === "bytes" || col === "created") return it[col] || 0;
+    if (col === "kind") return KIND_LABELS[it.kind] || it.kind || "";
+    if (col === "app") return itemSrc(it).toLowerCase();
+    return String(it[col] || "").toLowerCase();
+  }
+
+  function sortedItems(items) {
+    const s = curSort(); const k = s.dir === "asc" ? 1 : -1;
+    return items.slice().sort((a, b) => {
+      const x = sortVal(a, s.col), y = sortVal(b, s.col);
+      return (x < y ? -1 : x > y ? 1 : 0) * k || (b.created - a.created);
+    });
+  }
+
+  function tableHtml(items) {
+    const s = curSort();
+    const head = COLUMNS.map(([c, t]) => `<th${s.col === c ? ` aria-sort="${s.dir === "asc" ? "ascending" : "descending"}"` : ""}><button type="button" data-sort="${c}">${t}${s.col === c ? (s.dir === "asc" ? " ↑" : " ↓") : ""}</button></th>`).join("");
+    const rows = items.map((it) => {
+      const src = thumbUrl(it);
+      return `<tr class="it${selCls(it)}" data-id="${esc(it.id)}" tabindex="0">
+        <td><div class="tthumb">${src ? `<img loading="lazy" decoding="async" alt="" src="${esc(src)}">` : ""}</div></td>
+        <td class="nm" title="${esc(it.name)}">${esc(it.name)}</td>
+        <td>${esc(KIND_LABELS[it.kind] || it.kind)}${it.duration ? " · " + fmtDur(it.duration) : ""}</td>
+        <td>${esc(itemSrc(it))}</td>
+        <td title="${esc(it.title || "")}">${esc(it.title || "")}</td>
+        <td class="num">${dimsText(it)}</td>
+        <td class="num">${fmtBytes(it.bytes)}</td>
+        <td class="num">${shortFmt.format(new Date(it.created * 1000))}</td>
+      </tr>`;
+    }).join("");
+    return `<div class="tablewrap scroll"><table class="dt"><thead><tr><th aria-label="Preview"></th>${head}</tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+
+  function boardGroups(items) {
+    const g = curGroup(); const m = new Map();
+    for (const it of items) {
+      const k = g === "kind" ? (KIND_LABELS[it.kind] || it.kind) : g === "day" ? dayLabel(it.created) : (itemSrc(it) || "Other");
+      if (!m.has(k)) m.set(k, []);
+      m.get(k).push(it);
+    }
+    return Array.from(m);
+  }
+
+  function boardHtml(items) {
+    return `<div class="board scroll">${boardGroups(items).map(([k, arr]) => `<section class="bcol"><h3>${esc(k)}<span class="n">${arr.length}</span></h3><div class="bcards">${arr.map((it) => `<button class="bcard it${selCls(it)}" data-id="${esc(it.id)}" type="button" title="${esc(it.name)}">
+        <div class="media">${mediaHtml(it)}</div>
+        <span class="lname">${esc(it.name)}</span>
+        <span class="lsub">${esc([shortFmt.format(new Date(it.created * 1000)), dimsText(it)].filter(Boolean).join(" · "))}</span>
+      </button>`).join("")}</div></section>`).join("")}</div>`;
+  }
+
+  function byDayHtml(items, wrapCls, one) {
+    let html = ""; let cur = null;
+    for (const it of items) {
+      const lab = dayLabel(it.created);
+      if (lab !== cur) {
+        if (cur !== null) html += `</div>`;
+        html += `<div class="day"><h3>${esc(lab)}</h3><span class="rule"></span></div><div class="${wrapCls}">`;
+        cur = lab;
+      }
+      html += one(it);
+    }
+    return html + (cur !== null ? `</div>` : "");
+  }
+
+  function emptyHtml(filtered) {
+    const art = `<svg viewBox="0 0 220 140" fill="none"><rect x="14" y="10" width="192" height="120" rx="8" fill="var(--paper)" stroke="var(--line-2)"/><rect x="34" y="30" width="152" height="80" rx="4" stroke="var(--ink-3)" stroke-width="1.4" stroke-dasharray="5 4"/><path d="M46 98l30-30 20 20 16-14 30 24z" fill="var(--ai)" opacity=".3"/><circle cx="160" cy="50" r="9" fill="var(--shu)" opacity=".8"/></svg>`;
+    if (filtered) return `<div class="empty">${art}<h2>Nothing matches</h2><p>Change the search text or the filters.</p></div>`;
+    const k = keyLabel("region");
+    return `<div class="empty">${art}<h2>No captures yet</h2><p>${k ? `Press <kbd>${esc(k)}</kbd> and drag an area. ` : ""}The screenshot goes to the clipboard and to this gallery.</p></div>`;
+  }
+
+  function renderGallery() {
+    const root = $("#tab-gallery");
+    const L = state.list;
+    $("#snav").innerHTML = navHtml(L);
+    if (!L) { root.innerHTML = offHtml() + `<div class="placeholder">Loading…</div>`; return; }
+    const kind = P.get("kind", "all"); const app = P.get("app", ""); const days = P.get("days", "0"); const q = P.get("q", "");
+    const view = curView(); const group = curGroup();
+    const filtered = !!(q || kind !== "all" || app || days !== "0");
+    const navOn = curNav() === "on";
+    let html = offHtml();
+    html += `<div class="vbar">
+      <button class="icon-btn" data-act="toggle-nav" type="button" title="${navOn ? "Hide" : "Show"} the sidebar" aria-label="${navOn ? "Hide" : "Show"} the sidebar">${ICONS.nav}</button>
+      ${VIEWS.map(([v, t, ic]) => `<button class="vtab" type="button" data-view="${v}" aria-pressed="${view === v}" title="${t}">${ICONS[ic]}<span>${t}</span></button>`).join("")}
+      <div class="vright">
+        ${view === "board" ? `<select class="select" id="fGroup" aria-label="Group by">${GROUPS.map(([v, t]) => `<option value="${v}"${v === group ? " selected" : ""}>Group by ${t.toLowerCase()}</option>`).join("")}</select>` : ""}
+        ${filtered ? `<button class="btn ghost small" data-act="clear-filters" type="button">Clear filters</button>` : ""}
+        <span class="count">${L.total} ${L.total === 1 ? "item" : "items"}${q ? ` for “${esc(q)}”` : ""}</span>
+      </div>
+    </div>`;
+    if (!L.items.length) {
+      html += emptyHtml(filtered);
+    } else {
+      if (view === "list") html += byDayHtml(L.items, "rows", rowHtml);
+      else if (view === "table") html += tableHtml(sortedItems(L.items));
+      else if (view === "board") html += boardHtml(L.items);
+      else html += byDayHtml(L.items, "grid", cardHtml);
+      if (L.total > L.items.length) html += `<div class="more"><button class="btn" data-act="more" type="button">Show more (${L.total - L.items.length})</button></div>`;
+    }
+    root.innerHTML = html;
+  }
+
+  function currentItems() {
+    const items = (state.list && state.list.items) || [];
+    const v = curView();
+    if (v === "table") return sortedItems(items);
+    if (v === "board") return boardGroups(items).flatMap((g) => g[1]);
+    return items;
+  }
+
+  async function openItem(id) {
+    P.set("item", id);
+  }
+
+  async function loadItem(id, quiet) {
+    if (!id) { state.itemData = null; renderDrawer(); return; }
+    if (!quiet) { state.itemData = { loading: true, id }; renderDrawer(); }
+    try {
+      const res = await api("item", { id }, { key: "item" });
+      if (res.error) { state.itemData = { error: res.error, id }; }
+      else state.itemData = res;
+    } catch (e) { state.itemData = { error: errText(e), id }; }
+    renderDrawer();
+  }
+
+  function closeDrawer() { P.set("item", ""); P.set("studio", ""); }
+
+  function stepItem(dir) {
+    const items = currentItems();
+    const i = items.findIndex((x) => x.id === state.item);
+    if (i < 0) return;
+    const n = items[i + dir];
+    if (n) openItem(n.id);
+  }
+
+  function renderDrawer() {
+    const root = $("#drawerRoot");
+    const id = state.item;
+    if (!id) { root.innerHTML = ""; state.focusedItem = null; return; }
+    const D = state.itemData;
+    let body = "";
+    if (!D || D.loading) body = `<div class="placeholder">Loading…</div>`;
+    else if (D.error) body = `<div class="placeholder">${esc(D.error)}</div>`;
+    else body = drawerBody(D);
+    root.innerHTML = `<div class="drawer-scrim" data-act="close-drawer"></div>
+      <aside class="drawer" role="dialog" aria-label="Capture details" tabindex="-1">
+        <div class="dhead"></div>
+        <div class="dbody scroll">${body}</div>
+      </aside>`;
+    renderDrawerHead();
+    if (state.focusedItem !== id && !Studio.open) {
+      state.focusedItem = id;
+      window.focus();
+      $("#drawerRoot .drawer").focus({ preventScroll: true });
+    }
+  }
+
+  function renderDrawerHead() {
+    const head = $("#drawerRoot .dhead");
+    if (!head || !state.item) return;
+    const items = currentItems(); const idx = items.findIndex((x) => x.id === state.item);
+    head.innerHTML = `
+      <button class="icon-btn" data-act="prev" title="Previous (←)" type="button"${idx <= 0 ? " disabled" : ""}>${ICONS.left}</button>
+      <button class="icon-btn" data-act="next" title="Next (→)" type="button"${idx < 0 || idx >= items.length - 1 ? " disabled" : ""}>${ICONS.right}</button>
+      <div class="grow">${idx >= 0 ? `${idx + 1} of ${state.list.total}` : ""}</div>
+      <button class="icon-btn" data-act="close-drawer" title="Close (Esc)" type="button">${ICONS.close}</button>`;
+  }
+
+  function editingIn(sel) {
+    const a = document.activeElement;
+    return !!(a && a.closest && a.closest(sel) && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+  }
+
+  function drawerEditing() {
+    const v = $("#drawerRoot video");
+    return editingIn("#drawerRoot") || !!(v && !v.paused && !v.ended);
+  }
+
+  function drawerBody(D) {
+    const it = D.item;
+    const isVid = it.kind === "video";
+    const src = fused.rawUrl(it.path);
+    const verifyCls = it.verify === "ok" ? "ok" : "bad";
+    const verifyTxt = it.verify === "ok" ? "Correct — SHA-256 matches" : it.verify === "missing" ? "File is missing" : it.verify === "changed" ? "File changed after capture" : "Not checked";
+    const busy = state.busy;
+    const media = !it.exists ? `<div class="placeholder">The file is missing.<br><span class="mono">${esc(it.path)}</span></div>`
+      : isVid ? `<video controls preload="metadata" src="${esc(src)}"></video>` : `<img alt="" src="${esc(src)}">`;
+    const share = it.share_state === "uploading" ? `<div class="sharebox">${ICONS.share}<span>Uploading to Fused…</span></div>`
+      : it.share_url ? `<div class="sharebox">${ICONS.link}<a href="${esc(it.share_url)}" target="_blank" rel="noopener">${esc(it.share_url)}</a><button class="btn small" data-act="copy-link" type="button">Copy link</button></div>`
+      : it.share_state === "error" ? `<div class="sharebox"><span>The upload failed. See Logs.</span></div>` : "";
+    const ocr = isVid ? "" : `<div class="sec"><h4>Text in the image <span class="rule"></span>
+        ${it.ocr ? `<button class="btn small ghost" data-act="copy-ocr" type="button">Copy text</button>` : ""}
+        <button class="btn small ghost" data-act="ocr" type="button"${busy.ocr ? " disabled" : ""}>${busy.ocr ? "Reading…" : it.ocr_state === "done" ? "Read again" : "Read text"}</button></h4>
+        ${it.ocr ? `<div class="ocr scroll">${esc(it.ocr)}</div>` : `<div class="muted">${it.ocr_state === "pending" ? "Hagaki reads the text soon." : it.ocr_state === "error" ? "Text reading failed." : "No text found."}</div>`}</div>`;
+    const children = D.children && D.children.length ? `<div class="sec"><h4>Styled versions <span class="rule"></span></h4><div class="children">${D.children.map((c) => `<button type="button" data-open="${esc(c.id)}" title="${esc(c.name)}"><img alt="" src="${esc(thumbUrl(c))}"></button>`).join("")}</div></div>` : "";
+    const parent = it.parent ? `<dt>Made from</dt><dd><button class="link" data-open="${esc(it.parent)}" type="button">Original capture</button></dd>` : "";
+    return `
+      <div class="preview">${media}</div>
+      <div class="namebox">
+        <input id="nameInput" value="${esc(it.name)}" aria-label="Name" spellcheck="false" />
+        <button class="magic${busy.magic ? " busy" : ""}" data-act="magic" title="Magic rename: read the image and give it a name" type="button"${busy.magic ? " disabled" : ""}>${ICONS.magic}</button>
+      </div>
+      <div class="drow">
+        <button class="btn" data-act="copy" title="Copy to the clipboard (C)" type="button"${it.exists ? "" : " disabled"}>${ICONS.copy}Copy</button>
+        ${isStyledVideo(it) ? "" : `<button class="btn" data-act="style" type="button"${it.exists ? "" : " disabled"} title="${isVid ? "Add a background, a frame and zoom on clicks" : "Add a background and a frame"}">${ICONS.style}Style</button>`}
+        <button class="btn" data-act="share" type="button"${it.exists && it.share_state !== "uploading" ? "" : " disabled"}>${ICONS.share}${it.share_url ? "Update online copy" : "Put online"}</button>
+        <button class="btn ghost" data-act="open-file" title="Open in Fused Render in a new tab" type="button"${it.exists ? "" : " disabled"}>${ICONS.reveal}</button>
+        <button class="btn ghost" data-act="reveal" title="Show in Finder" type="button">${ICONS.folder}</button>
+        <button class="btn ghost" data-act="trash" title="Move to the Trash" type="button">${ICONS.trash}</button>
+      </div>
+      ${share}
+      <div class="sec"><h4>Details <span class="rule"></span></h4>
+        <dl class="kv">
+          <dt>Captured</dt><dd>${esc(fullFmt.format(new Date(it.created * 1000)))} <span class="muted">· ${ago(it.created)}</span></dd>
+          <dt>Type</dt><dd>${esc(SOURCES[it.source] || it.source)}${it.kind === "styled" ? " · styled" : ""}</dd>
+          ${it.app ? `<dt>App</dt><dd>${esc(it.app)}</dd>` : ""}
+          ${it.title ? `<dt>Window</dt><dd>${esc(it.title)}</dd>` : ""}
+          <dt>Size</dt><dd>${it.width ? `${it.width} × ${it.height} px · ` : ""}${fmtBytes(it.bytes)}${it.duration ? " · " + fmtDur(it.duration) : ""}</dd>
+          <dt>Name from</dt><dd>${esc({ pattern: "Name pattern", manual: "You", ai: "Magic rename" }[it.name_source] || it.name_source || "")}</dd>
+          <dt>Clipboard</dt><dd>${it.clipboard ? "Copied after capture" : "Not copied"}</dd>
+          ${parent}
+          <dt>File</dt><dd class="mono" style="font-size:12px">${esc(it.path)}</dd>
+          <dt>Check</dt><dd><span class="verify ${verifyCls}">${it.verify === "ok" ? ICONS.check.replace("<svg", '<svg width="14" height="14"') : ""}${verifyTxt}</span>
+            <button class="btn small ghost" data-act="verify" type="button">Check again</button><br>
+            <span class="mono muted" style="font-size:11px">SHA-256 ${esc((it.sha256 || "").slice(0, 16))}… · ${it.verified ? esc(fullFmt.format(new Date(it.verified * 1000))) : ""}</span></dd>
+        </dl>
+      </div>
+      <div class="sec"><h4>Tags and note <span class="rule"></span></h4>
+        <input class="field" id="tagsInput" placeholder="Tags, with commas between them" value="${esc(it.tags || "")}" />
+        <textarea class="field" id="noteInput" placeholder="Note" style="margin-top:8px">${esc(it.note || "")}</textarea>
+      </div>
+      ${ocr}
+      ${children}
+      <div class="sec"><h4>History <span class="rule"></span></h4>
+        <ul class="hist">${(D.events || []).map((e) => `<li><time>${esc(timeFmt.format(new Date(e.ts * 1000)))}</time><span><span class="lvl ${esc(e.level)}">${esc(e.level)}</span> ${esc(e.message)}</span></li>`).join("") || `<li><span class="muted">No events.</span></li>`}</ul>
+      </div>`;
+  }
+
+  async function pasteClipboard() {
+    try {
+      const r = await api("paste");
+      const n = r.items.length;
+      snack(n === 1 ? "Added from the clipboard." : `Added ${n} files from the clipboard.`);
+      await loadList(true);
+      if (r.items[0]) openItem(r.items[0].id);
+    } catch (e) { snack(errText(e), true); }
+  }
+
+  function flashDone(act, label) {
+    const b = $(`#drawerRoot [data-act="${act}"]`);
+    if (!b || b.classList.contains("done")) return;
+    const before = b.innerHTML;
+    b.classList.add("done");
+    b.innerHTML = ICONS.check + esc(label);
+    setTimeout(() => { b.classList.remove("done"); b.innerHTML = before; }, 1600);
+  }
+
+  function viewerUrl(path) {
+    return location.origin + "/explorer/view/" + path.replace(/^\//, "").split("/").map(encodeURIComponent).join("/");
+  }
+
+  async function fusedSignedIn() {
+    const status = async () => (await fetch("/api/canvases/status")).json();
+    let st;
+    try { st = await status(); } catch (e) { return true; }
+    if (st.logged_in) return true;
+    if (fused.device && fused.device !== "desktop") { snack("Sign in to Fused on the computer first.", true); return false; }
+    const ok = await confirmModal("Sign in to Fused first", "Hagaki puts captures online with your Fused account. Sign in, then Hagaki continues.", "Sign in");
+    if (!ok) return false;
+    try {
+      const r = await fetch("/api/canvases/login", { method: "POST", headers: { "X-Fused": "1", "Content-Type": "application/json" }, body: "{}" });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+    } catch (e) { snack("The Fused sign-in did not start: " + errText(e), true); return false; }
+    snack("Finish the sign-in in your browser.");
+    for (let i = 0; i < 300; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      let s;
+      try { s = await status(); } catch (e) { continue; }
+      if (s.logged_in && s.creds_stamp !== st.creds_stamp) { snack("Signed in to Fused.", false, true); return true; }
+      if (!s.login_in_flight && i > 1) { snack("The Fused sign-in did not finish.", true); return false; }
+    }
+    return false;
+  }
+
+  async function itemAction(act) {
+    const D = state.itemData; if (!D || !D.item) return;
+    const it = D.item;
+    try {
+      if (act === "copy") {
+        await api("copy", { id: it.id });
+        flashDone("copy", "Copied");
+        snack(it.kind === "video" ? "Recording copied to the clipboard." : it.kind === "styled" ? "Styled image copied to the clipboard." : "Screenshot copied to the clipboard.", false, true);
+      }
+      else if (act === "reveal") await api("reveal", { id: it.id });
+      else if (act === "open-file") window.open(viewerUrl(it.path), "_blank", "noopener");
+      else if (act === "verify") { const r = await api("verify", { id: it.id }); snack(r.item.verify === "ok" ? "The file is correct." : "The file is not the same as at capture.", r.item.verify !== "ok"); await loadItem(it.id, true); }
+      else if (act === "copy-ocr") { await api("copy_text", { text: it.ocr }); flashDone("copy-ocr", "Copied"); snack("Text copied to the clipboard.", false, true); }
+      else if (act === "copy-link") { await api("copy_text", { text: it.share_url }); flashDone("copy-link", "Copied"); snack("Link copied to the clipboard.", false, true); }
+      else if (act === "ocr") {
+        state.busy.ocr = true; renderDrawer();
+        try { await api("ocr", { id: it.id }); } finally { state.busy.ocr = false; }
+        await loadItem(it.id, true);
+      }
+      else if (act === "magic") {
+        state.busy.magic = true; renderDrawer();
+        try {
+          const r = await api("ai_rename", { id: it.id });
+          snack("New name: " + r.item.name);
+        } finally { state.busy.magic = false; }
+        await loadItem(it.id, true); loadList(true);
+      }
+      else if (act === "share") {
+        if (!(await fusedSignedIn())) return;
+        const canvas = ((state.settings && state.settings.settings.share.mode) || "public") === "temporary" ? "hagaki_temporary" : "hagaki_public";
+        const ok = await confirmModal(it.share_url ? "Update the online copy?" : "Put this online?",
+          `Hagaki uploads the file to your Fused account, adds it to the canvas ${canvas} and makes a link. Anyone with the link can see it.`, it.share_url ? "Update" : "Put online");
+        if (!ok) return;
+        await api("share", { id: it.id });
+        snack("The upload started. The link goes to the clipboard when it is ready.");
+        await loadItem(it.id, true);
+      }
+      else if (act === "trash") {
+        const ok = await confirmModal("Move to the Trash?", `“${it.name}” goes to the macOS Trash. You can get it back from there.`, "Move to Trash");
+        if (!ok) return;
+        const items = currentItems(); const i = items.findIndex((x) => x.id === it.id);
+        const next = items[i + 1] || items[i - 1];
+        await api("trash", { id: it.id });
+        snack("Moved to the Trash.");
+        if (next) openItem(next.id); else closeDrawer();
+        loadList(true);
+      }
+      else if (act === "style" && !isStyledVideo(it)) P.set("studio", "1");
+    } catch (e) { state.busy = {}; renderDrawer(); snack(errText(e), true); }
+  }
+
+  let renaming = false;
+  async function saveName() {
+    const D = state.itemData; if (!D || !D.item || renaming) return;
+    const input = $("#nameInput"); if (!input) return;
+    const v = input.value.trim();
+    if (!v || v === D.item.name) { input.value = D.item.name; return; }
+    renaming = true;
+    try {
+      const r = await api("rename", { id: D.item.id, name: v });
+      D.item = r.item; snack("Renamed.");
+      renderDrawer(); loadList(true);
+    } catch (e) { snack(errText(e), true); input.value = D.item.name; }
+    finally { renaming = false; }
+  }
+
+  async function saveMeta() {
+    const D = state.itemData; if (!D || !D.item) return;
+    const tags = $("#tagsInput"), note = $("#noteInput");
+    if (!tags || !note) return;
+    if (tags.value === (D.item.tags || "") && note.value === (D.item.note || "")) return;
+    try {
+      const r = await api("meta", { id: D.item.id, tags: tags.value, note: note.value });
+      D.item = r.item;
+    } catch (e) { snack(errText(e), true); }
+  }
+
+  function confirmModal(title, text, okLabel) {
+    return new Promise((resolve) => {
+      const root = $("#modalRoot");
+      root.innerHTML = `<div class="modal-scrim"><div class="modal" role="alertdialog" aria-modal="true"><h3>${esc(title)}</h3><p>${esc(text)}</p><div class="foot"><button class="btn" data-m="no" type="button">Cancel</button><button class="btn primary" data-m="yes" type="button">${esc(okLabel || "OK")}</button></div></div></div>`;
+      const done = (v) => { root.innerHTML = ""; document.removeEventListener("keydown", onKey, true); resolve(v); };
+      const onKey = (e) => { if (e.key === "Escape") { e.stopPropagation(); done(false); } if (e.key === "Enter") { e.stopPropagation(); done(true); } };
+      document.addEventListener("keydown", onKey, true);
+      root.querySelector('[data-m="yes"]').focus();
+      root.onclick = (e) => { const b = e.target.closest("[data-m]"); if (b) done(b.dataset.m === "yes"); else if (e.target.classList.contains("modal-scrim")) done(false); };
+    });
+  }
+
+  async function loadLogs() {
+    try {
+      const res = await api("events", { level: P.get("level", ""), kind: P.get("lkind", "all"), q: P.get("lq", ""), limit: 400 }, { key: "logs" });
+      state.logs = res.events;
+    } catch (e) { state.logs = null; $("#tab-logs").innerHTML = `<div class="placeholder">${esc(errText(e))}</div>`; return; }
+    renderLogs();
+  }
+
+  function renderLogs() {
+    const root = $("#tab-logs");
+    const ev = state.logs || [];
+    const lvl = P.get("level", ""); const kind = P.get("lkind", "all");
+    const kinds = ["all", "capture", "clipboard", "ocr", "rename", "share", "verify", "record", "hotkey", "settings", "daemon", "import", "delete", "thumbnail"];
+    root.innerHTML = `
+      <div class="logs-bar">
+        <div class="seg">${[["", "All"], ["info", "Info"], ["warn", "Warnings"], ["error", "Errors"]].map(([v, t]) => `<button type="button" data-level="${v}" aria-pressed="${lvl === v}">${t}</button>`).join("")}</div>
+        <select class="select" id="lKind">${kinds.map((k) => `<option value="${k}"${k === kind ? " selected" : ""}>${k === "all" ? "All events" : k[0].toUpperCase() + k.slice(1)}</option>`).join("")}</select>
+        <input id="lq" type="search" placeholder="Search the log" value="${esc(P.get("lq", ""))}" />
+        <span class="spacer"></span>
+        <button class="btn" data-act="verify-all" type="button">${ICONS.check}Check all files</button>
+        <button class="btn" data-act="rescan" type="button">${ICONS.folder}Scan library folder</button>
+        <button class="btn ghost" data-act="open-log" type="button">Open log folder</button>
+      </div>
+      <div class="panel" style="overflow:hidden">
+        ${ev.length ? `<table class="log"><thead><tr><th>Time</th><th>Level</th><th>Event</th><th>Message</th></tr></thead><tbody>
+          ${ev.map((e) => `<tr><td class="t">${esc(fullFmt.format(new Date(e.ts * 1000)))}</td><td><span class="lvl ${esc(e.level)}">${esc(e.level)}</span></td><td class="kind">${esc(e.kind)}</td><td class="m">${esc(e.message)}${e.item ? ` <button class="link" data-open="${esc(e.item)}" type="button">Open</button>` : ""}</td></tr>`).join("")}
+        </tbody></table>` : `<div class="placeholder">No events match.</div>`}
+      </div>`;
+  }
+
+  async function loadSettings() {
+    try { state.settings = await api("settings", {}, { key: "settings" }); }
+    catch (e) { if (P.get("tab", "gallery") === "settings") $("#tab-settings").innerHTML = `<div class="placeholder">${esc(errText(e))}</div>`; return; }
+    if (state.settings.daemon !== undefined) state.dstat = state.settings.daemon;
+    renderStatus();
+    if (P.get("tab", "gallery") === "settings") renderSettings();
+    if (P.get("tab", "gallery") === "gallery" && state.list) renderGallery();
+  }
+
+  function sw(id, on, label, help) {
+    return `<div class="row"><div class="lbl">${label}${help ? `<small>${help}</small>` : ""}</div><label class="switch"><input type="checkbox" data-set="${id}"${on ? " checked" : ""}><span></span></label></div>`;
+  }
+
+  function resSeg(kind, value) {
+    const now = Number(value ?? 1);
+    return `<div class="seg">${[[0.5, "Small"], [1, "Normal"], [1.5, "Sharp"], [0, "Full"]].map(([v, t]) => `<button type="button" data-res="${kind}" data-scale="${v}" aria-pressed="${now === v}">${t}</button>`).join("")}</div>`;
+  }
+
+  function renderSettings() {
+    const root = $("#tab-settings");
+    const S = state.settings;
+    if (!S) { root.innerHTML = `<div class="placeholder">Loading…</div>`; return; }
+    const s = S.settings; const d = state.daemon || {}; const ds = state.dstat || {};
+    const errs = {}; (ds.errors || []).forEach((e) => { errs[e.action] = e.error; });
+    const sys = S.system_shortcuts || { keys: [] };
+    const tokens = ["{date}", "{time}", "{app}", "{title}", "{w}", "{h}", "{kind}", "{source}", "{year}", "{month}", "{day}", "{rand}"];
+    root.innerHTML = `<div class="settings">
+      <div class="panel sbox">
+        <h2>Background service</h2>
+        <p>Hagaki must run in the background for the shortcuts and the menu bar icon.</p>
+        <div class="row"><div class="lbl">Status<small>${d.running ? `On${ds.pid ? " · process " + ds.pid : ""}${ds.started ? " · since " + esc(fullFmt.format(new Date(ds.started * 1000))) : ""}` : "Off. The shortcuts do not work."}</small></div>
+          ${d.running ? `<button class="btn" data-act="restart" type="button">Restart</button><button class="btn" data-act="turn-off" type="button">Turn off</button>` : `<button class="btn primary" data-act="turn-on" type="button">Turn on</button>`}</div>
+        <div class="row"><div class="lbl">Start with Fused Render<small>Hagaki starts each time Fused Render starts.</small></div><label class="switch"><input type="checkbox" data-act="autostart"${d.autostart ? " checked" : ""}><span></span></label></div>
+        ${d.running ? `<div class="row"><div class="lbl">Pause shortcuts<small>Stop the shortcuts for a short time. The menu bar icon stays.</small></div><label class="switch"><input type="checkbox" data-act="pause"${ds.paused ? " checked" : ""}><span></span></label></div>` : ""}
+      </div>
+
+      <div class="panel sbox">
+        <h2>Shortcuts</h2>
+        <p>Click a shortcut, then press the new keys. Use at least one of ⌘, ⌥, ⌃ or ⇧.</p>
+        ${["region", "window", "screen", "record", "open"].map((a) => `<div class="row"><div class="lbl">${ACTION_LABELS[a]}${errs[a] ? `<small class="err">Not available: another app uses it.</small>` : ""}</div>
+          <button class="keyrec" data-rec="${a}" type="button">${esc(S.hotkey_labels[a] || "None")}</button>
+          <button class="icon-btn" data-clear="${a}" title="Remove" type="button">${ICONS.close}</button></div>`).join("")}
+        <div class="row"><div class="lbl">Use the macOS screenshot keys<small>${s.override_system ? "On. ⌘⇧3, ⌘⇧4 and ⌘⇧5 open Hagaki. macOS gets them back when Hagaki stops." : "Hagaki takes ⌘⇧3 (screen), ⌘⇧4 (area) and ⌘⇧5 (record) from macOS. It asks first."}</small>
+          <ul class="sys-list">${(sys.keys || []).map((k) => `<li><span>${k.enabled ? "macOS" : "Hagaki"}</span><span>·</span><span>${esc(k.label)}</span></li>`).join("")}</ul></div>
+          <label class="switch"><input type="checkbox" data-act="override"${s.override_system ? " checked" : ""}><span></span></label></div>
+      </div>
+
+      <div class="panel sbox">
+        <h2>Storage</h2>
+        <p>Hagaki saves all captures in one folder.</p>
+        <div class="row" style="flex-wrap:wrap"><div class="lbl">Library folder</div>
+          <div class="pathrow"><input type="text" id="libPath" value="${esc(s.library_dir)}" spellcheck="false" />
+          <button class="btn" data-act="pick-folder" type="button">Choose…</button><button class="btn ghost" data-act="open-folder" type="button">${ICONS.folder}</button></div>
+          <small class="muted" style="width:100%">Now: <span class="mono">${esc(S.library)}</span></small></div>
+        ${sw("month_folders", s.month_folders, "Make a folder for each month", "For example 2026-10.")}
+        <div class="row" style="flex-wrap:wrap"><div class="lbl">File name pattern</div>
+          <div class="pathrow"><input type="text" id="namePattern" value="${esc(s.name_pattern)}" spellcheck="false" /><button class="btn" data-act="save-pattern" type="button">Save</button></div>
+          <div class="tokens">${tokens.map((t) => `<button type="button" data-token="${t}">${t}</button>`).join("")}</div>
+          <small class="muted" style="width:100%">Example: <span class="mono" id="nameExample">…</span></small>
+          <small class="muted" style="width:100%">Each name starts with a letter and has no spaces, so Fused can put it online. Hagaki changes spaces to _ and adds Screenshot, Recording or Styled before a name that starts with a number.</small></div>
+        <div class="row"><div class="lbl">Image format</div><div class="seg">${[["png", "PNG"], ["jpg", "JPEG"]].map(([v, t]) => `<button type="button" data-format="${v}" aria-pressed="${s.image_format === v}">${t}</button>`).join("")}</div></div>
+      </div>
+
+      <div class="panel sbox">
+        <h2>After a capture</h2>
+        <p>Hagaki always saves the file. It does not ask.</p>
+        ${sw("after_capture.clipboard", s.after_capture.clipboard, "Copy to the clipboard")}
+        ${sw("after_capture.toast", s.after_capture.toast, "Show a small preview", "Click the preview to open the capture here.")}
+        ${sw("after_capture.sound", s.after_capture.sound, "Play the camera sound")}
+        ${sw("after_capture.ocr", s.after_capture.ocr, "Read the text in the image", "This makes the text searchable. It runs on your Mac.")}
+        ${sw("after_capture.auto_style", s.after_capture.auto_style, "Make a styled copy", "Uses your default style. The styled copy goes to the clipboard.")}
+        ${sw("after_capture.open_editor", s.after_capture.open_editor, "Open the style editor")}
+        ${sw("after_capture.ai_rename", s.after_capture.ai_rename, "Rename with AI (beta)", "The AI model reads each new image and gives it a name.")}
+      </div>
+
+      <div class="panel sbox">
+        <h2>Capture</h2>
+        <p>These settings apply to areas, windows and full screens.</p>
+        ${sw("capture.annotate", s.capture.annotate, "Show the annotation tools after the drag", "Add arrows, boxes, text, step numbers, blur and more. Press Enter to save. If this is off, Hagaki saves when you release the mouse.")}
+        ${sw("capture.snap_windows", s.capture.snap_windows, "Find windows under the pointer", "Click once to capture the full window.")}
+        ${sw("capture.magnifier", s.capture.magnifier, "Show the magnifier")}
+        ${sw("capture.cursor", s.capture.cursor, "Show the pointer in full-screen captures")}
+        <div class="row"><div class="lbl">Resolution<small>Normal is the size you see on the screen. Full keeps all Retina pixels and makes files about 4 times larger.</small></div>${resSeg("shot", s.capture.scale)}</div>
+        <div class="row"><div class="lbl">Delay before capture</div><div class="seg">${[0, 3, 5, 10].map((v) => `<button type="button" data-delay="${v}" aria-pressed="${Number(s.capture.delay || 0) === v}">${v ? v + " s" : "None"}</button>`).join("")}</div></div>
+      </div>
+
+      <div class="panel sbox">
+        <h2>Recording</h2>
+        <p>Press the record shortcut again to stop. You can also use the stop button or the menu bar icon.</p>
+        <div class="row"><div class="lbl">Sound</div><div class="seg">${[["none", "None"], ["mic", "Microphone"], ["system", "Mac sound"], ["both", "Both"]].map(([v, t]) => `<button type="button" data-audio="${v}" aria-pressed="${(s.record.audio || "none") === v}">${t}</button>`).join("")}</div></div>
+        <div class="row"><div class="lbl">Resolution<small>Hagaki makes the file smaller after you stop. Full keeps all Retina pixels.</small></div>${resSeg("rec", s.record.scale)}</div>
+        ${sw("record.cursor", s.record.cursor, "Show the pointer")}
+        ${sw("record.draw_fade", s.record.draw_fade, "Fade the marks you draw", "Click Draw on the stop button to draw on the screen while you record. If this is on, each mark goes away after 3 seconds.")}
+        <div class="row"><div class="lbl">Maximum length</div><div class="seg">${[5, 15, 30, 60].map((m) => `<button type="button" data-maxmin="${m}" aria-pressed="${Math.round((s.record.max_seconds || 1800) / 60) === m}">${m} min</button>`).join("")}</div></div>
+      </div>
+
+      <div class="panel sbox">
+        <h2>Sharing</h2>
+        <p>“Put online” uploads to your Fused account and makes a link. All public links are in one canvas, <span class="mono">hagaki_public</span>. All temporary links are in <span class="mono">hagaki_temporary</span>.</p>
+        <div class="row"><div class="lbl">Link type<small>A temporary link stops after some time.</small></div><div class="seg">${[["public", "Public"], ["temporary", "Temporary"]].map(([v, t]) => `<button type="button" data-sharemode="${v}" aria-pressed="${(s.share.mode || "public") === v}">${t}</button>`).join("")}</div></div>
+        ${sw("share.copy_link", s.share.copy_link, "Copy the link when the upload is done")}
+      </div>
+    </div>`;
+    previewName();
+  }
+
+  let nameTimer = null;
+  function previewName() {
+    clearTimeout(nameTimer);
+    nameTimer = setTimeout(async () => {
+      const el = $("#namePattern"), out = $("#nameExample");
+      if (!el || !out) return;
+      try { const r = await api("preview_name", { text: el.value }, { key: "preview-name" }); out.textContent = r.name; } catch (e) { out.textContent = errText(e); }
+    }, 180);
+  }
+
+  function setPath(obj, path, value) {
+    const parts = path.split("."); const out = {}; let cur = out;
+    parts.forEach((p, i) => { if (i === parts.length - 1) cur[p] = value; else { cur[p] = {}; cur = cur[p]; } });
+    return out;
+  }
+
+  async function saveSettings(patch, reload) {
+    try {
+      state.settings = await api("save_settings", { patch }, { key: "save-settings" });
+      if (reload && state.daemon.running) {
+        try { state.dstat = await daemonCall("/reload"); } catch (e) { }
+      }
+      renderSettings(); renderStatus();
+      snack("Saved.");
+    } catch (e) { snack(errText(e), true); renderSettings(); }
+  }
+
+  let recorder = null;
+  const CODE_KEYS = { Space: "space", Enter: "enter", Tab: "tab", Backspace: "backspace", Delete: "delete", Escape: "escape", Home: "home", End: "end", PageUp: "pageup", PageDown: "pagedown", ArrowLeft: "arrowleft", ArrowRight: "arrowright", ArrowUp: "arrowup", ArrowDown: "arrowdown", Minus: "minus", Equal: "equal", BracketLeft: "bracketleft", BracketRight: "bracketright", Backslash: "backslash", Semicolon: "semicolon", Quote: "quote", Comma: "comma", Period: "period", Slash: "slash", Backquote: "backquote" };
+  function codeToKey(code) {
+    if (/^Key[A-Z]$/.test(code)) return code.slice(3).toLowerCase();
+    if (/^Digit[0-9]$/.test(code)) return code.slice(5);
+    if (/^F\d{1,2}$/.test(code)) return code.toLowerCase();
+    return CODE_KEYS[code] || "";
+  }
+  async function startRecorder(action, btn) {
+    if (recorder) stopRecorder(false);
+    btn.classList.add("listen"); btn.textContent = "Press keys…";
+    const wasPaused = state.dstat && state.dstat.paused;
+    if (state.daemon.running && !wasPaused) { try { await daemonCall("/pause", { paused: true }); } catch (e) { } }
+    const onKey = async (e) => {
+      e.preventDefault(); e.stopPropagation();
+      if (["Shift", "Control", "Alt", "Meta"].includes(e.key)) return;
+      if (e.key === "Escape" && !(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey)) { stopRecorder(true); return; }
+      const key = codeToKey(e.code);
+      const mods = [e.ctrlKey && "ctrl", e.altKey && "alt", e.shiftKey && "shift", e.metaKey && "cmd"].filter(Boolean);
+      if (!key || !mods.length) { btn.textContent = "Add ⌘, ⌥, ⌃ or ⇧"; return; }
+      const spec = mods.concat([key]).join("+");
+      await saveSettings({ hotkeys: { [action]: spec } }, false);
+      await stopRecorder(true);
+    };
+    const onAway = (e) => { if (e.type !== "mousedown" || !btn.contains(e.target)) stopRecorder(true); };
+    const onHide = () => { if (document.hidden) stopRecorder(true); };
+    recorder = { onKey, onAway, onHide, btn, wasPaused };
+    window.addEventListener("keydown", onKey, true);
+    document.addEventListener("mousedown", onAway, true);
+    window.addEventListener("blur", onAway);
+    document.addEventListener("visibilitychange", onHide);
+  }
+  async function stopRecorder(restoreView) {
+    if (!recorder) return;
+    window.removeEventListener("keydown", recorder.onKey, true);
+    document.removeEventListener("mousedown", recorder.onAway, true);
+    window.removeEventListener("blur", recorder.onAway);
+    document.removeEventListener("visibilitychange", recorder.onHide);
+    const wasPaused = recorder.wasPaused;
+    recorder = null;
+    if (state.daemon.running && !wasPaused) { try { state.dstat = await daemonCall("/pause", { paused: false }); } catch (e) { } }
+    if (restoreView && P.get("tab", "gallery") === "settings") renderSettings();
+  }
+
+  async function settingsAction(el) {
+    const act = el.dataset.act;
+    const s = state.settings && state.settings.settings;
+    if (act === "turn-on") return turnOn();
+    if (act === "turn-off") return turnOff();
+    if (act === "restart") { try { await fused.daemon.restart(); snack("Hagaki restarted."); } catch (e) { snack(errText(e), true); } setTimeout(() => { refreshDaemon().then(loadSettings); }, 900); return; }
+    if (act === "autostart") { try { await fused.daemon.setAutostart(el.checked); } catch (e) { snack(errText(e), true); } await refreshDaemon(); renderSettings(); return; }
+    if (act === "pause") { try { state.dstat = await daemonCall("/pause", { paused: el.checked }); } catch (e) { snack(errText(e), true); } renderSettings(); renderStatus(); return; }
+    if (act === "override") {
+      const enable = el.checked;
+      if (enable) {
+        const ok = await confirmModal("Use ⌘⇧3, ⌘⇧4 and ⌘⇧5 for Hagaki?",
+          "Hagaki turns off the macOS screenshot shortcuts and uses these keys itself. Hagaki keeps a copy of your macOS settings. When you turn this off, or when Hagaki stops, macOS gets the keys back.", "Use the keys");
+        if (!ok) { el.checked = false; return; }
+      }
+      if (!state.daemon.running) {
+        await turnOn();
+      }
+      try {
+        state.dstat = await daemonCall("/override", { enable });
+        await loadSettings();
+        snack(enable ? "⌘⇧4 now opens Hagaki." : "macOS has its screenshot keys again.");
+      } catch (e) { snack(errText(e), true); await loadSettings(); }
+      return;
+    }
+    if (act === "pick-folder") {
+      if (!state.daemon.running) { snack("Turn on Hagaki to use the folder picker, or type the path.", true); return; }
+      try {
+        const r = await daemonCall("/pick_folder", { start: $("#libPath").value });
+        if (r && r.path) await saveSettings({ library_dir: r.path }, false);
+      } catch (e) { snack(errText(e), true); }
+      return;
+    }
+    if (act === "open-folder") { api("open_folder"); return; }
+    if (act === "save-pattern") { await saveSettings({ name_pattern: $("#namePattern").value }, false); return; }
+  }
+
+  function render() {
+    if (state.preview) return;
+    const tab = P.get("tab", "gallery");
+    if (recorder && tab !== "settings") stopRecorder(false);
+    $$("nav.tabs button").forEach((b) => b.setAttribute("aria-selected", String(b.dataset.tab === tab)));
+    ["gallery", "logs", "settings"].forEach((t) => $("#tab-" + t).classList.toggle("hidden", t !== tab));
+    $("#snav").classList.toggle("hidden", tab !== "gallery" || curNav() === "off");
+    const q = P.get("q", "");
+    if ($("#q").value !== q && document.activeElement !== $("#q")) $("#q").value = q;
+    if (tab === "gallery") loadList(false);
+    if (tab === "logs") loadLogs();
+    if (tab === "settings") { if (state.settings) renderSettings(); loadSettings(); }
+    const item = P.get("item", "");
+    if (item !== state.item) { state.item = item || null; state.busy = {}; loadItem(state.item); }
+    if (tab === "gallery" && state.list) $$(".it").forEach((c) => c.classList.toggle("sel", c.dataset.id === state.item));
+    const studio = P.get("studio", "") === "1" && !!state.item;
+    if (studio && !Studio.open) Studio.show(state.item);
+    if (!studio && Studio.open) Studio.hide();
+  }
+
+  async function poll() {
+    if (document.hidden) return;
+    const stamp = state.stamp || (state.settings && state.settings.stamp);
+    if (!stamp) return;
+    let st = null;
+    try { st = await fused.stat(stamp); } catch (e) { return; }
+    if (!st) return;
+    if (state.stampMtime === null) { state.stampMtime = st.mtime; return; }
+    if (st.mtime === state.stampMtime) return;
+    state.stampMtime = st.mtime;
+    refreshDaemon();
+    const tab = P.get("tab", "gallery");
+    if (tab === "gallery") loadList(true);
+    if (tab === "logs" && !editingIn("#tab-logs")) loadLogs();
+    if (tab === "settings" && !editingIn("#tab-settings") && !recorder) loadSettings();
+    else api("daemon", {}, { key: "daemon" }).then((r) => { state.dstat = r.daemon; renderStatus(); }).catch(() => { });
+    if (state.item && !(state.busy.magic || state.busy.ocr) && !drawerEditing()) loadItem(state.item, true);
+  }
+
+  function planAt(rows, t) {
+    if (!rows || !rows.length) return [1, 0.5, 0.5];
+    let lo = 0, hi = rows.length - 1;
+    if (t <= rows[0][0]) return rows[0].slice(1, 4);
+    if (t >= rows[hi][0]) return rows[hi].slice(1, 4);
+    while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (rows[mid][0] <= t) lo = mid; else hi = mid; }
+    const a = rows[lo], b = rows[hi], k = (t - a[0]) / ((b[0] - a[0]) || 1);
+    return [1, 2, 3].map((j) => a[j] + (b[j] - a[j]) * k);
+  }
+
+  function viewRect(W, H, shot, s, fx, fy, top) {
+    const vw = W / s, vh = H / s;
+    const p = top <= 1.0001 ? 0 : Math.min(1, Math.max(0, (s - 1) / (top - 1))), pad = 0.015 * Math.min(shot.w, shot.h);
+    let lx = (shot.x + pad) * p, ly = (shot.y + pad) * p, hx = W + (shot.x + shot.w - pad - W) * p, hy = H + (shot.y + shot.h - pad - H) * p;
+    if (hx - lx < vw) { const m = (lx + hx) / 2; lx = m - vw / 2; hx = m + vw / 2; }
+    if (hy - ly < vh) { const m = (ly + hy) / 2; ly = m - vh / 2; hy = m + vh / 2; }
+    return [Math.min(Math.max(shot.x + fx * shot.w - vw / 2, lx), hx - vw), Math.min(Math.max(shot.y + fy * shot.h - vh / 2, ly), hy - vh)];
+  }
+
+  function drawRings(g, clicks, off, t, shot, ringPx, seconds) {
+    clicks.forEach((c, i) => {
+      const age = (t - c[0]) / seconds;
+      if (off.has(i) || age < 0 || age > 1) return;
+      const r = ringPx * (0.45 + 0.75 * (1 - Math.pow(1 - age, 3)));
+      g.save();
+      g.globalAlpha = 1 - age;
+      g.beginPath();
+      g.arc(shot.x + c[1] * shot.w, shot.y + c[2] * shot.h, 0.84 * r, 0, Math.PI * 2);
+      g.fillStyle = "rgba(255,255,255,0.28)"; g.fill();
+      g.lineWidth = 0.14 * r; g.strokeStyle = "rgba(0,0,0,0.22)"; g.stroke();
+      g.lineWidth = 0.08 * r; g.strokeStyle = "rgba(255,255,255,0.95)"; g.stroke();
+      g.restore();
+    });
+  }
+
+  function loadVideo(src) {
+    return new Promise((resolve, reject) => {
+      const v = document.createElement("video");
+      v.muted = true; v.loop = true; v.playsInline = true; v.preload = "auto";
+      v.onloadeddata = () => resolve(v);
+      v.onerror = () => reject(new Error("The video did not load."));
+      v.src = src;
+    });
+  }
+
+  function isStyledVideo(it) { return it.kind === "video" && it.source === "style"; }
+
+  const Studio = {
+    open: false, id: null, img: null, item: null, opts: null, raf: 0,
+    lib: null, video: false, vinfo: null, zoom: null, plan: null, plate: null, off: null, timers: {}, busy: "", jobs: {}, phEl: null, timeEl: null,
+    load() {
+      if (window.HagakiStudio) return Promise.resolve(window.HagakiStudio);
+      return new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = fused.rawUrl("studio.js");
+        s.onload = () => window.HagakiStudio ? resolve(window.HagakiStudio) : reject(new Error("studio.js has no HagakiStudio"));
+        s.onerror = () => reject(new Error("studio.js did not load"));
+        document.head.appendChild(s);
+      });
+    },
+    alive(id) { return this.open && this.id === id; },
+    async show(id) {
+      this.open = true; this.id = id;
+      const root = $("#studioRoot");
+      root.innerHTML = `<div class="studio" role="dialog" aria-label="Style editor"><div class="stage"><div class="loading">Loading…</div></div><div class="side"><header><h2>Style</h2><button class="icon-btn" data-st="close" title="Close (Esc)" type="button">${ICONS.close}</button></header><div class="body scroll"></div><footer></footer></div></div>`;
+      try {
+        this.lib = await this.load();
+        let item = state.itemData && state.itemData.item && state.itemData.item.id === id ? state.itemData.item : null;
+        if (!item) { const r = await api("item", { id }); item = r.item; }
+        if (!this.alive(id)) return;
+        this.item = item;
+        this.video = item.kind === "video";
+        const saved = state.settings && state.settings.settings && state.settings.settings.style;
+        if (this.video) {
+          const [info, v] = await Promise.all([api("video_info", { id }), loadVideo(fused.rawUrl(item.path))]);
+          if (!this.alive(id)) { v.removeAttribute("src"); v.load(); return; }
+          this.vinfo = info; this.img = v;
+          this.zoom = Object.assign({}, info.zoom);
+        } else {
+          const img = new Image();
+          img.decoding = "async";
+          await new Promise((res, rej) => { img.onload = res; img.onerror = () => rej(new Error("The image did not load.")); img.src = fused.rawUrl(item.path); });
+          if (!this.alive(id)) return;
+          this.img = img;
+        }
+        const d = new Date(item.created * 1000);
+        const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        this.opts = Object.assign({}, this.lib.defaults, saved || {}, { title: item.title || item.app || "", caption: (saved && saved.caption) || "", date: iso });
+        delete this.opts.zoom;
+        this.renderSide();
+        const stage = root.querySelector(".stage");
+        if (this.video) {
+          stage.classList.add("reel");
+          stage.innerHTML = `<canvas id="stCanvas"></canvas><div class="tlbar"><button class="icon-btn" data-reel="play" type="button" title="Play or pause (Space)">${ICONS.pause}</button><div class="tl" id="reelTl" title="Select to move to this time"></div><span class="time" id="reelTime"></span></div><div class="meta" id="stMeta"></div>`;
+          this.timeEl = $("#reelTime");
+          const v = this.img;
+          v.addEventListener("play", () => { this.renderPlay(); this.frame(); });
+          v.addEventListener("pause", () => this.renderPlay());
+          v.addEventListener("seeked", () => this.frame());
+          this.loadPlan().catch((e) => snack(errText(e), true));
+          this.draw();
+          v.play().catch(() => this.renderPlay());
+          ["style", "detect"].forEach((k) => { if (this.vinfo.jobs[k].state === "running") this.follow(k); });
+        } else {
+          stage.innerHTML = `<canvas id="stCanvas"></canvas><div class="meta" id="stMeta"></div>`;
+          this.draw();
+        }
+      } catch (e) {
+        const stage = root.querySelector(".stage");
+        if (stage) stage.innerHTML = `<div class="loading">${esc(errText(e))}</div>`;
+      }
+    },
+    hide() {
+      this.open = false; this.id = null;
+      cancelAnimationFrame(this.raf);
+      Object.values(this.timers).forEach(clearTimeout);
+      if (this.video && this.img) { this.img.pause(); this.img.removeAttribute("src"); this.img.load(); }
+      this.img = null; this.plate = null; this.plan = null; this.vinfo = null; this.video = false; this.jobs = {};
+      $("#studioRoot").innerHTML = "";
+    },
+    later(key, ms, fn) { clearTimeout(this.timers[key]); this.timers[key] = setTimeout(fn, ms); },
+    meta() { return { pixelRatio: (this.item && this.item.pixel_ratio) || 1 }; },
+    draw() {
+      if (this.video) { this.later("plate", 80, () => this.buildPlate()); return; }
+      cancelAnimationFrame(this.raf);
+      this.raf = requestAnimationFrame(() => {
+        const c = $("#stCanvas"); if (!c || !this.img) return;
+        const big = Math.max(this.img.naturalWidth, this.img.naturalHeight);
+        const scale = Math.min(1, 1800 / big);
+        const t0 = performance.now();
+        const out = this.lib.render(c, this.img, Object.assign({}, this.opts, { scale }), this.meta());
+        const ms = Math.round(performance.now() - t0);
+        const fw = Math.round((out && out.width || c.width) / scale), fh = Math.round((out && out.height || c.height) / scale);
+        const m = $("#stMeta"); if (m) m.textContent = `${fw} × ${fh} px · drawn in ${ms} ms`;
+      });
+    },
+    buildPlate() {
+      const v = this.img, c = $("#stCanvas");
+      if (!v || !c) return;
+      const t0 = performance.now();
+      const p = this.lib.videoPlate(v.videoWidth, v.videoHeight, this.opts, this.meta(), { maxSide: 1600, zoom: 2 });
+      c.width = p.layout.W; c.height = p.layout.H;
+      this.off = this.off || document.createElement("canvas");
+      this.off.width = p.layout.W; this.off.height = p.layout.H;
+      this.plate = p;
+      const m = $("#stMeta"); if (m) m.textContent = `${p.full.W} × ${p.full.H} px video · style drawn in ${Math.round(performance.now() - t0)} ms`;
+      this.frame();
+    },
+    async loadPlan() {
+      const id = this.id;
+      const plan = await api("video_plan", { id, zoom: { amount: this.zoom.amount, follow: this.zoom.follow, skip: this.zoom.skip } }, { key: "reelplan" });
+      if (!this.alive(id)) return;
+      plan.top = plan.rows.reduce((m, r) => Math.max(m, r[1]), 1);
+      this.plan = plan;
+      this.renderTimeline();
+      this.frame();
+    },
+    frame() {
+      cancelAnimationFrame(this.raf);
+      const v = this.img, p = this.plate, c = $("#stCanvas");
+      if (!v || !p || !c || !this.plan) return;
+      const L = p.layout, W = L.W, H = L.H, z = this.zoom, t = v.currentTime;
+      const [s, fx, fy] = z.auto ? planAt(this.plan.rows, t) : [1, 0.5, 0.5];
+      const [x0, y0] = viewRect(W, H, L.shot, s, fx, fy, z.auto ? this.plan.top : 1);
+      const o = this.off.getContext("2d"), g = c.getContext("2d");
+      o.setTransform(1, 0, 0, 1, 0, 0);
+      o.globalCompositeOperation = "source-over";
+      o.clearRect(0, 0, W, H);
+      o.setTransform(s, 0, 0, s, -x0 * s, -y0 * s);
+      o.drawImage(v, L.shot.x, L.shot.y, L.shot.w, L.shot.h);
+      if (z.rings) drawRings(o, this.plan.clicks, new Set(z.skip), t, L.shot, this.plan.ring.points * this.meta().pixelRatio * L.shot.w / (v.videoWidth || 1), this.plan.ring.seconds);
+      o.globalCompositeOperation = "multiply";
+      o.drawImage(p.mask, 0, 0, W, H);
+      g.setTransform(s, 0, 0, s, -x0 * s, -y0 * s);
+      g.globalCompositeOperation = "source-over";
+      g.drawImage(p.base, 0, 0, W, H);
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.globalCompositeOperation = "lighter";
+      g.drawImage(this.off, 0, 0);
+      g.globalCompositeOperation = "source-over";
+      const dur = v.duration || this.item.duration || 0;
+      if (this.phEl) this.phEl.style.left = `${dur ? Math.min(100, t / dur * 100) : 0}%`;
+      const text = `${fmtDur(t)} / ${fmtDur(dur)}`;
+      if (this.timeEl && this.timeEl.textContent !== text) this.timeEl.textContent = text;
+      if (!v.paused) this.raf = requestAnimationFrame(() => this.frame());
+    },
+    renderPlay() {
+      const b = $('#studioRoot [data-reel="play"]');
+      if (b && this.img) b.innerHTML = this.img.paused ? ICONS.play : ICONS.pause;
+    },
+    togglePlay() { const v = this.img; if (!v) return; if (v.paused) v.play().catch(() => { }); else v.pause(); },
+    seek(frac) { const v = this.img; if (v && v.duration) { v.currentTime = Math.max(0, Math.min(v.duration - 0.01, frac * v.duration)); } },
+    renderTimeline() {
+      const tl = $("#reelTl"); if (!tl || !this.plan) return;
+      const dur = this.img.duration || this.item.duration || 1, off = new Set(this.zoom.skip);
+      const pct = (t) => `${Math.max(0, Math.min(100, t / dur * 100)).toFixed(3)}%`;
+      tl.innerHTML = (this.zoom.auto ? this.plan.groups.map((g) => `<span class="zg" style="left:${pct(g.start)};width:${pct(g.end - g.start)}"></span>`).join("") : "")
+        + this.plan.clicks.map((c, i) => `<button class="ck" type="button" data-click="${i}" aria-pressed="${!off.has(i)}" style="left:${pct(c[0])}" title="Click at ${c[0].toFixed(1)} s. Select to turn its zoom ${off.has(i) ? "on" : "off"}."></button>`).join("")
+        + `<span class="ph" id="reelPh"></span>`;
+      this.phEl = $("#reelPh");
+    },
+    zoomHtml() {
+      const z = this.zoom, info = this.vinfo, tr = info.track, job = this.jobs.detect;
+      const n = tr ? tr.clicks : 0, clicks = `${n} click${n === 1 ? "" : "s"}`;
+      const note = !tr ? "This video has no click data. Hagaki can look for likely clicks in the video."
+        : tr.source === "recorded" ? `Hagaki recorded ${clicks} with this video.`
+        : `Hagaki estimated ${clicks} from the video. Some can be wrong. Select a dot under the video to turn its zoom off.`;
+      const find = tr && tr.source === "recorded" ? "" : `<button class="btn small" data-reel="detect" type="button"${job ? " disabled" : ""}>${job ? `Looking for clicks… ${Math.round((job.progress || 0) * 100)}%` : tr ? "Look again" : "Find clicks with AI"}</button>
+        <small class="hint">${info.vision ? `Uses motion and ${esc(info.model)} on this Mac. Nothing leaves the Mac.` : "Moondream 2 is not on this Mac, so Hagaki uses motion only."}</small>`;
+      return `<div class="ctl"><div class="t">Zoom on clicks</div><p class="zoomnote">${note}</p>${find}
+        <div class="row"><div class="lbl">Auto zoom<small>Zoom in where you click.</small></div><label class="switch"><input type="checkbox" data-zoom="auto"${z.auto ? " checked" : ""}><span></span></label></div>
+        <div class="ctl"><label for="st-zoom">Zoom<output id="st-zoom-o">${z.amount.toFixed(1)}×</output></label><input type="range" id="st-zoom" data-zoomamount min="${info.range[0]}" max="${info.range[1]}" step="0.1" value="${z.amount}"></div>
+        <div class="row"><div class="lbl">Follow the cursor<small>Move the view when the cursor leaves it.</small></div><label class="switch"><input type="checkbox" data-zoom="follow"${z.follow ? " checked" : ""}><span></span></label></div>
+        <div class="row"><div class="lbl">Click rings<small>Show a ring at each click.</small></div><label class="switch"><input type="checkbox" data-zoom="rings"${z.rings ? " checked" : ""}><span></span></label></div></div>`;
+    },
+    renderZoom() { const el = $("#reelZoom"); if (el && this.video) el.innerHTML = this.zoomHtml(); },
+    renderSide() {
+      const L = this.lib; const o = this.opts;
+      const groups = [["japanese", "Japanese"], ["gradient", "Gradients"], ["solid", "Plain"]];
+      const body = $("#studioRoot .body");
+      body.innerHTML = `${this.video ? `<div id="reelZoom">${this.zoomHtml()}</div>` : ""}
+        ${groups.map(([g, t]) => `<div class="ctl"><div class="t">${t}</div><div class="swatches">${L.backgrounds.filter((b) => b.group === g).map((b) => `<button type="button" data-bg="${esc(b.id)}" aria-pressed="${o.bg === b.id}" title="${esc(b.name)}"><canvas width="96" height="64" data-sw="${esc(b.id)}"></canvas><span class="nm">${esc(b.name)}</span></button>`).join("")}</div></div>`).join("")}
+        <div class="ctl"><div class="t">Frame</div><div class="chips">${L.frames.map((f) => `<button type="button" data-frame="${esc(f.id)}" aria-pressed="${o.frame === f.id}">${esc(f.name)}</button>`).join("")}</div></div>
+        ${[["padding", "Space around", 0, 25, 1, "%"], ["radius", "Corners", 0, 40, 1, ""], ["shadow", "Shadow", 0, 100, 1, ""], ["inset", "Inner border", 0, 40, 1, ""]].map(([k, t, mn, mx, st, u]) => `<div class="ctl"><label for="st-${k}">${t}<output id="st-${k}-o">${o[k]}${u}</output></label><input type="range" id="st-${k}" data-range="${k}" data-unit="${u}" min="${mn}" max="${mx}" step="${st}" value="${o[k]}"></div>`).join("")}
+        <div class="ctl"><div class="t">Shape</div><div class="chips">${L.aspects.map((a) => `<button type="button" data-aspect="${esc(a.id)}" aria-pressed="${o.aspect === a.id}">${esc(a.name)}</button>`).join("")}</div></div>
+        <div class="ctl"><label for="st-title">Window title</label><input class="field" id="st-title" data-text="title" value="${esc(o.title)}"></div>
+        <div class="ctl"><label for="st-caption">Caption</label><input class="field" id="st-caption" data-text="caption" placeholder="A short line under the ${this.video ? "video" : "image"}" value="${esc(o.caption)}"></div>
+        <div class="row" style="margin-top:10px"><div class="lbl">Stamp and postmark<small>Adds a stamp with the capture date.</small></div><label class="switch"><input type="checkbox" data-stamp${o.stamp ? " checked" : ""}><span></span></label></div>`;
+      $$("canvas[data-sw]", body).forEach((cv) => { try { L.swatch(cv, cv.dataset.sw); } catch (e) { } });
+      this.renderFooter();
+    },
+    renderFooter() {
+      const job = this.jobs.style, saving = this.busy === "style" || !!job;
+      const label = job ? `Saving… ${Math.round((job.progress || 0) * 100)}%` : saving ? "Preparing…" : "Save";
+      const foot = $("#studioRoot footer"); if (!foot) return;
+      foot.innerHTML = `<button class="btn" data-st="default" type="button" title="Use this style each time the editor opens">Make default</button><button class="btn" data-st="save" type="button"${saving ? " disabled" : ""}>${label}</button><button class="btn primary" data-st="copy" type="button"${saving ? " disabled" : ""}>${ICONS.copy}Copy</button>`;
+    },
+    set(k, v) { this.opts[k] = v; this.draw(); },
+    setZoom(k, v) {
+      this.zoom[k] = v;
+      if (k === "rings") { this.frame(); return; }
+      if (k === "auto") { this.renderTimeline(); this.frame(); return; }
+      this.later("plan", 150, () => this.loadPlan().catch((e) => snack(errText(e), true)));
+    },
+    toggleClick(i) {
+      const skip = new Set(this.zoom.skip);
+      if (skip.has(i)) skip.delete(i); else skip.add(i);
+      this.zoom.skip = Array.from(skip).sort((a, b) => a - b);
+      this.renderTimeline();
+      this.loadPlan().catch((e) => snack(errText(e), true));
+    },
+    async follow(kind) {
+      const id = this.id;
+      const render = () => (kind === "style" ? this.renderFooter() : this.renderZoom());
+      let st = { state: "running", progress: 0 };
+      while (st.state === "running") {
+        if (!this.alive(id)) return st;
+        this.jobs[kind] = st;
+        render();
+        await new Promise((r) => setTimeout(r, 800));
+        try { st = await api("video_job", { id, kind }, { key: "reeljob-" + kind }); } catch (e) { st = { state: "error", error: errText(e) }; }
+      }
+      if (!this.alive(id)) return st;
+      this.jobs[kind] = null;
+      render();
+      if (st.state === "error") snack(st.error || "The job stopped.", true);
+      else if (kind === "style") { snack("The styled video is in the gallery.", false, true); loadList(true); }
+      else {
+        this.vinfo = await api("video_info", { id });
+        if (!this.alive(id)) return st;
+        this.zoom.skip = [];
+        this.renderZoom();
+        await this.loadPlan();
+        snack(`Hagaki found ${st.clicks || 0} likely click${st.clicks === 1 ? "" : "s"}.`, false, true);
+      }
+      return st;
+    },
+    async detect() {
+      if (this.jobs.detect) return;
+      try {
+        const id = this.id;
+        await api("detect_clicks", { id });
+        if (this.alive(id)) await this.follow("detect");
+      } catch (e) { snack(errText(e), true); this.jobs.detect = null; this.renderZoom(); }
+    },
+    async exportVideo(copy) {
+      if (this.busy || this.jobs.style) return;
+      const id = this.id;
+      this.busy = "style"; this.renderFooter();
+      try {
+        await api("style_video", { id, request: { opts: this.opts, zoom: this.zoom, copy } });
+        this.busy = "";
+        if (this.alive(id)) await this.follow("style");
+      } catch (e) { snack(errText(e), true); }
+      finally { this.busy = ""; if (this.alive(id)) this.renderFooter(); }
+    },
+    async export(copy) {
+      if (this.video) return this.exportVideo(copy);
+      const btns = $$("#studioRoot footer .btn"); btns.forEach((b) => (b.disabled = true));
+      try {
+        const blob = await this.lib.toBlob(this.img, Object.assign({}, this.opts, { scale: 1 }), this.meta());
+        const data = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(blob); });
+        const style = Object.assign({}, this.opts); delete style.title;
+        const r = await api("save_styled", { id: this.item.id, data, style, copy: copy ? "true" : "false" });
+        snack(copy ? "Saved and copied to the clipboard." : "Saved as a new styled image.", false, true);
+        loadList(true);
+        return r.item;
+      } catch (e) { snack(errText(e), true); }
+      finally { btns.forEach((b) => (b.disabled = false)); }
+    },
+  };
+
+  function bind() {
+    document.addEventListener("click", async (e) => {
+      const t = e.target;
+      const tab = t.closest("nav.tabs button"); if (tab) { P.set("tab", tab.dataset.tab); return; }
+      if (t.closest("#statusChip")) {
+        if (state.dstat && state.dstat.recording) { try { await daemonCall("/stop"); } catch (er) { snack(errText(er), true); } return; }
+        if (state.daemon.running) turnOff(); else turnOn();
+        return;
+      }
+      const cap = t.closest("[data-capture]"); if (cap) { capture(cap.dataset.capture); return; }
+      const card = t.closest(".it[data-id]"); if (card) { openItem(card.dataset.id); return; }
+      const vw = t.closest("[data-view]"); if (vw) { setPref("view", vw.dataset.view); return; }
+      const so = t.closest("[data-sort]"); if (so) { const c = so.dataset.sort; const s = curSort(); setPref("sort", c + ":" + (s.col === c ? (s.dir === "asc" ? "desc" : "asc") : (["name", "kind", "app", "title"].includes(c) ? "asc" : "desc"))); return; }
+      const open = t.closest("[data-open]"); if (open) { P.set("studio", ""); openItem(open.dataset.open); return; }
+      const kind = t.closest("[data-kind]"); if (kind) { state.limit = 120; P.set("kind", kind.dataset.kind === "all" ? "" : kind.dataset.kind); return; }
+      const ap = t.closest("[data-app]"); if (ap) { state.limit = 120; P.set("app", ap.dataset.app); return; }
+      const dy = t.closest("[data-days]"); if (dy) { state.limit = 120; P.set("days", dy.dataset.days === "0" ? "" : dy.dataset.days); return; }
+      const lvl = t.closest("[data-level]"); if (lvl) { P.set("level", lvl.dataset.level); return; }
+      const st = t.closest("[data-st]");
+      if (st) {
+        const a = st.dataset.st;
+        if (a === "close") P.set("studio", "");
+        if (a === "save") Studio.export(false);
+        if (a === "copy") Studio.export(true);
+        if (a === "default") {
+          const style = Object.assign({}, Studio.opts); delete style.title; delete style.date;
+          if (Studio.video) style.zoom = { auto: Studio.zoom.auto, amount: Studio.zoom.amount, follow: Studio.zoom.follow };
+          await saveSettings({ style }, false);
+        }
+        return;
+      }
+      const reel = t.closest("[data-reel]");
+      if (reel && Studio.video) { if (reel.dataset.reel === "play") Studio.togglePlay(); else if (reel.dataset.reel === "detect") Studio.detect(); return; }
+      const ck = t.closest("[data-click]"); if (ck && Studio.video) { Studio.toggleClick(Number(ck.dataset.click)); return; }
+      const tl = t.closest("#reelTl"); if (tl && Studio.video) { const r = tl.getBoundingClientRect(); Studio.seek((e.clientX - r.left) / r.width); return; }
+      const bg = t.closest("[data-bg]"); if (bg && Studio.open) { $$("[data-bg]").forEach((b) => b.setAttribute("aria-pressed", String(b === bg))); Studio.set("bg", bg.dataset.bg); return; }
+      const fr = t.closest("[data-frame]"); if (fr && Studio.open) { $$("[data-frame]").forEach((b) => b.setAttribute("aria-pressed", String(b === fr))); Studio.set("frame", fr.dataset.frame); return; }
+      const asp = t.closest("[data-aspect]"); if (asp && Studio.open) { $$("[data-aspect]").forEach((b) => b.setAttribute("aria-pressed", String(b === asp))); Studio.set("aspect", asp.dataset.aspect); return; }
+      const rec = t.closest("[data-rec]"); if (rec) { startRecorder(rec.dataset.rec, rec); return; }
+      const clr = t.closest("[data-clear]"); if (clr) { await saveSettings({ hotkeys: { [clr.dataset.clear]: "" } }, true); return; }
+      const tok = t.closest("[data-token]"); if (tok) { const el = $("#namePattern"); el.value = (el.value + " " + tok.dataset.token).trim(); el.focus(); previewName(); return; }
+      const fmt = t.closest("[data-format]"); if (fmt) { saveSettings({ image_format: fmt.dataset.format }, false); return; }
+      const rs = t.closest("[data-res]"); if (rs) { saveSettings({ [rs.dataset.res === "rec" ? "record" : "capture"]: { scale: Number(rs.dataset.scale) } }, false); return; }
+      const dl = t.closest("[data-delay]"); if (dl) { saveSettings({ capture: { delay: Number(dl.dataset.delay) } }, false); return; }
+      const au = t.closest("[data-audio]"); if (au) { saveSettings({ record: { audio: au.dataset.audio } }, false); return; }
+      const mm = t.closest("[data-maxmin]"); if (mm) { saveSettings({ record: { max_seconds: Number(mm.dataset.maxmin) * 60 } }, false); return; }
+      const sm = t.closest("[data-sharemode]"); if (sm) { saveSettings({ share: { mode: sm.dataset.sharemode } }, false); return; }
+      const a = t.closest("[data-act]");
+      if (!a) return;
+      const act = a.dataset.act;
+      if (act === "close-drawer") { closeDrawer(); return; }
+      if (act === "prev") { stepItem(-1); return; }
+      if (act === "next") { stepItem(1); return; }
+      if (act === "more") { state.limit += 120; loadList(true); return; }
+      if (act === "toggle-nav") { setPref("nav", curNav() === "on" ? "off" : "on"); return; }
+      if (act === "clear-filters") { P.set("q", ""); P.set("kind", ""); P.set("app", ""); P.set("days", ""); $("#q").value = ""; return; }
+      if (act === "verify-all") { a.disabled = true; try { await api("verify_all"); snack("Hagaki checks all files now. The result shows in this log."); } catch (er) { snack(errText(er), true); } a.disabled = false; return; }
+      if (act === "rescan") { a.disabled = true; try { await api("rescan"); snack("Hagaki scans the library folder now. New files show in the gallery."); } catch (er) { snack(errText(er), true); } a.disabled = false; return; }
+      if (act === "open-log") { api("open_log"); return; }
+      if (["copy", "reveal", "open-file", "verify", "copy-ocr", "copy-link", "ocr", "magic", "share", "trash", "style"].includes(act)) { itemAction(act); return; }
+      if (a.tagName === "INPUT" && a.type === "checkbox") return;
+      settingsAction(a);
+    });
+    document.addEventListener("change", (e) => {
+      const t = e.target;
+      if (t.id === "fGroup") { setPref("group", t.value); return; }
+      if (t.id === "lKind") { P.set("lkind", t.value === "all" ? "" : t.value); return; }
+      if (t.matches("[data-set]")) { saveSettings(setPath({}, t.dataset.set, t.checked), false); return; }
+      if (t.matches("[data-act]") && t.type === "checkbox") { settingsAction(t); return; }
+      if (t.matches("[data-stamp]") && Studio.open) { Studio.set("stamp", t.checked); return; }
+      if (t.matches("[data-zoom]") && Studio.video) { Studio.setZoom(t.dataset.zoom, t.checked); return; }
+      if (t.id === "libPath") { saveSettings({ library_dir: t.value }, false); return; }
+      if (t.id === "tagsInput" || t.id === "noteInput") { saveMeta(); return; }
+    });
+    document.addEventListener("input", (e) => {
+      const t = e.target;
+      if (t.matches("[data-range]") && Studio.open) { const k = t.dataset.range; const v = Number(t.value); const o = $(`#st-${k}-o`); if (o) o.textContent = v + (t.dataset.unit || ""); Studio.set(k, v); return; }
+      if (t.matches("[data-text]") && Studio.open) { Studio.set(t.dataset.text, t.value); return; }
+      if (t.matches("[data-zoomamount]") && Studio.video) { const v = Number(t.value); $("#st-zoom-o").textContent = v.toFixed(1) + "×"; Studio.setZoom("amount", v); return; }
+      if (t.id === "namePattern") { previewName(); return; }
+    });
+    let qTimer = null;
+    $("#q").addEventListener("input", (e) => {
+      clearTimeout(qTimer);
+      const v = e.target.value;
+      qTimer = setTimeout(() => { state.limit = 120; P.set("q", v.trim()); if (P.get("tab", "gallery") !== "gallery") P.set("tab", "gallery"); }, 220);
+    });
+    document.addEventListener("keydown", (e) => {
+      if (recorder) return;
+      const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement && document.activeElement.tagName);
+      if (e.key === "Enter" && document.activeElement && document.activeElement.id === "nameInput") { e.preventDefault(); document.activeElement.blur(); return; }
+      if (e.key === "Escape") {
+        if ($("#modalRoot").innerHTML) return;
+        if (Studio.open) { P.set("studio", ""); return; }
+        if (state.item) { closeDrawer(); return; }
+        if (typing) { document.activeElement.blur(); return; }
+      }
+      if (e.key === " " && Studio.video && !(typing && !["checkbox", "range"].includes(document.activeElement.type))) { e.preventDefault(); Studio.togglePlay(); return; }
+      if (typing) return;
+      if (e.key === "Enter" && document.activeElement && document.activeElement.matches("tr.it[data-id]")) { openItem(document.activeElement.dataset.id); return; }
+      if (e.key === "/") { e.preventDefault(); $("#q").focus(); $("#q").select(); return; }
+      if (e.key === "v" && (e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && !Studio.open && !$("#modalRoot").innerHTML) { e.preventDefault(); pasteClipboard(); return; }
+      if (state.item && !Studio.open) {
+        if (e.key === "ArrowLeft") { stepItem(-1); return; }
+        if (e.key === "ArrowRight") { stepItem(1); return; }
+        if (e.key === "c" && !e.metaKey && !e.ctrlKey) { itemAction("copy"); return; }
+        if (e.key === "s" && !e.metaKey && !e.ctrlKey) { itemAction("style"); return; }
+      }
+    });
+    document.addEventListener("focusout", (e) => {
+      if (e.target && e.target.id === "nameInput") saveName();
+      if (e.target && e.target.id === "lq") P.set("lq", e.target.value.trim());
+    });
+    document.addEventListener("keyup", (e) => { if (e.target && e.target.id === "lq" && e.key === "Enter") P.set("lq", e.target.value.trim()); });
+  }
+
+  function boot() {
+    state.preview = isPreview();
+    if (state.preview) { renderPreviewPlaceholder(); return; }
+    bind();
+    fused.params.onChange(render);
+    try { fused.daemon.watch((s) => { state.daemon = s; renderStatus(); if (P.get("tab", "gallery") === "settings") renderSettings(); if (P.get("tab", "gallery") === "gallery" && state.list) renderGallery(); }); } catch (e) { }
+    refreshDaemon();
+    loadSettings();
+    render();
+    setInterval(poll, 1500);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) poll(); });
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+[[tool]]
+name = "status"
+description = "Hagaki state: background service on/off, shortcuts, library folder, capture counts, whether FusedRender can take screenshots and recordings, and screen_locked. If screen_locked is true, screen and window captures show the lock screen; use capture_web_page for web pages."
+file = "tools.py"
+entrypoint = "status"
+
+[[tool]]
+name = "list_displays"
+description = "Displays with id, origin and size in points (global coordinates, top-left origin) and pixel scale. Use the id as `display` in other tools."
+file = "tools.py"
+entrypoint = "list_displays"
+
+[[tool]]
+name = "list_windows"
+description = "Visible windows, front to back, with id, app, title and bounds in global points. Filter with app and title (case-insensitive text). Use the id as window_id in capture_window."
+file = "tools.py"
+entrypoint = "list_windows"
+
+[[tool]]
+name = "capture_screen"
+description = "Take a screenshot of a full display (display 0 = main) silently, save it in the Hagaki library and return id, path, size, app and the text read from it. copy true also puts it on the clipboard; name sets the file name; cursor true draws the pointer. Read the returned path to look at the image."
+file = "tools.py"
+entrypoint = "capture_screen"
+
+[[tool]]
+name = "capture_window"
+description = "Take a screenshot of one window: by window_id (from list_windows), or by app and title text, or the front window when all are empty. Saves to the library and returns the capture with its text."
+file = "tools.py"
+entrypoint = "capture_window"
+
+[[tool]]
+name = "capture_area"
+description = "Take a screenshot of a rectangle given in points: x, y, width, height. With display 0 the x/y are global coordinates; with a display id they are local to that display. Saves to the library and returns the capture with its text."
+file = "tools.py"
+entrypoint = "capture_area"
+
+[[tool]]
+name = "open_url"
+description = "Open an http or https address in a browser on this Mac (the default browser, or browser = an app name such as Safari or Google Chrome). Waits wait_seconds (default 3) for the page, then returns the browser's front window. Give window.id to capture_window to screenshot the page as the person sees it, with their logins."
+file = "tools.py"
+entrypoint = "open_url"
+
+[[tool]]
+name = "capture_web_page"
+description = "Screenshot a web page in a hidden browser: no window opens and it works when the screen is locked or nobody is at the Mac. Saves to the library (app = the site name, note = the address) and returns the capture with its text. width/height = the page size in points (default 1440x900); full_page true captures the whole scroll height; wait_seconds = extra time after the page loads (default 2); dark true asks for the dark theme; scale 1-3 = pixel density. The hidden browser has no logins; for a signed-in page use open_url and capture_window."
+file = "tools.py"
+entrypoint = "capture_web_page"
+
+[[tool]]
+name = "ask_user_to_capture"
+description = "Show Hagaki's selection overlay so the person drags an area (mode region), picks a window (window), the full screen (screen) or records an area (record; the person stops it). Waits up to timeout seconds and returns the new capture, or null if they pressed Esc."
+file = "tools.py"
+entrypoint = "ask_user_to_capture"
+
+[[tool]]
+name = "start_recording"
+description = "Start a silent screen recording: an area (x, y, width, height in points; global unless display is set), a window (app/title text), or a full display (nothing set). audio: none, mic, system or both. Stops itself after max_seconds. Returns recording_id."
+file = "tools.py"
+entrypoint = "start_recording"
+
+[[tool]]
+name = "stop_recording"
+description = "Stop a recording made by start_recording (default the newest), save the .mov in the library and return the capture."
+file = "tools.py"
+entrypoint = "stop_recording"
+
+[[tool]]
+name = "search_captures"
+description = "Search the screenshot and recording library. query matches file names, apps, window titles, tags, notes and text inside images. kind: all, image, video or styled. app filters by app name; days limits to the last N days. Newest first."
+file = "tools.py"
+entrypoint = "search_captures"
+
+[[tool]]
+name = "latest_capture"
+description = "The newest capture in the library (kind: all, image, video or styled), with the text read from it."
+file = "tools.py"
+entrypoint = "latest_capture"
+
+[[tool]]
+name = "get_capture"
+description = "Everything about one capture: path, size, app, window title, timestamps, SHA-256 check, share link, the text read from it, and its event history."
+file = "tools.py"
+entrypoint = "get_capture"
+
+[[tool]]
+name = "read_text"
+description = "The text inside a screenshot, read on this Mac with Apple Vision. again true reads it again."
+file = "tools.py"
+entrypoint = "read_text"
+
+[[tool]]
+name = "rename_capture"
+description = "Rename a capture's file to name, or set use_ai true to let the AI model look at the image and name it."
+file = "tools.py"
+entrypoint = "rename_capture"
+
+[[tool]]
+name = "tag_capture"
+description = "Set comma-separated tags and/or a note on a capture. Both become searchable. Leave out a field to keep it; send an empty string to clear it."
+file = "tools.py"
+entrypoint = "tag_capture"
+
+[[tool]]
+name = "list_styles"
+description = "Background ids (Japanese patterns and scenes, gradients, plain), frame ids (none, macos, macos-dark, windows, linux, postcard), shape ids and default values for style_capture."
+file = "tools.py"
+entrypoint = "list_styles"
+
+[[tool]]
+name = "style_capture"
+description = "Make a styled copy of a screenshot or a recording and add it to the library. bg = background id, frame = window frame id, aspect = shape id (auto, 16:9, 4:3, 1:1, 9:16, 3:2, 2:1); padding 0-25 (% space around), radius 0-40, shadow 0-100, inset 0-40 (-1 keeps the default); title = text in the window bar; caption = a line under the image; stamp true adds a stamp and postmark; scale 0.5-2 (screenshots only); copy true puts it on the clipboard. For a recording the result is an MP4: zoom true zooms in at each click, zoom_amount 1.2-3, follow true moves the view with the cursor, rings 1 shows a ring at each click (0 off, -1 = on only for clicks recorded during capture). New recordings carry exact clicks; for an older recording find_clicks true first estimates clicks on this Mac from motion and the Moondream 2 vision model (about 0.6 s per second of video). The video render takes about 1 s per 2 s of video. Get ids from list_styles."
+file = "tools.py"
+entrypoint = "style_capture"
+
+[[tool]]
+name = "copy_capture"
+description = "Put a capture on the clipboard: image data for a screenshot, the file for a recording."
+file = "tools.py"
+entrypoint = "copy_capture"
+
+[[tool]]
+name = "share_capture"
+description = "Upload a capture to the person's Fused account and return a share link (mode public or temporary). Public captures all go into the canvas hagaki_public and temporary ones into hagaki_temporary. Anyone with the link can see it, so ask the person first."
+file = "tools.py"
+entrypoint = "share_capture"
+
+[[tool]]
+name = "delete_capture"
+description = "Move a capture's file to the macOS Trash and remove it from the gallery."
+file = "tools.py"
+entrypoint = "delete_capture"
+
+[[tool]]
+name = "verify_captures"
+description = "Check that a capture file (or every file, when id is empty) still matches the SHA-256 saved at capture time. Reports correct, changed or missing."
+file = "tools.py"
+entrypoint = "verify_captures"
+
+[[tool]]
+name = "recent_events"
+description = "Recent Hagaki log events: captures, clipboard copies, text reading, renames, uploads and errors. level: info, warn, error or empty for all."
+file = "tools.py"
+entrypoint = "recent_events"
+
+[[tool]]
+name = "open_in_hagaki"
+description = "Open the Hagaki gallery for the person, or one capture when id is given."
+file = "tools.py"
+entrypoint = "open_in_hagaki"
