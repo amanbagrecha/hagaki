@@ -21,6 +21,15 @@ Hagaki is a screenshot, screen recording and GIF app for macOS. It runs inside F
 
 To use ⌘⇧3, ⌘⇧4, ⌘⇧5 and ⌘⇧6 (GIF), turn on **Settings › Shortcuts › Use the macOS screenshot keys**. Hagaki asks first and keeps a copy of your macOS settings. macOS gets the keys back when you turn this off or when Hagaki stops.
 
+## Turn Hagaki on or off from the command line
+Run these in the Hagaki folder:
+```sh
+/Applications/FusedRender.app/Contents/MacOS/python tools.py start_service
+/Applications/FusedRender.app/Contents/MacOS/python tools.py start_service '{"restart": true}'
+/Applications/FusedRender.app/Contents/MacOS/python tools.py stop_service
+```
+FusedRender must be running. Agents can use the `start_service` and `stop_service` MCP tools.
+
 ## What Hagaki does
 - Lets you mark up an area before you save it: arrow, box, ellipse, line, pen, marker, text, step numbers, spotlight, blur and pixelate.
 - Lets you draw on the screen while you record. The marks are in the video.

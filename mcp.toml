@@ -5,6 +5,18 @@ file = "tools.py"
 entrypoint = "status"
 
 [[tool]]
+name = "start_service"
+description = "Turn on Hagaki's background service, which runs the shortcuts and the menu bar icon. restart true stops it first and loads changed code or settings. Returns status."
+file = "tools.py"
+entrypoint = "start_service"
+
+[[tool]]
+name = "stop_service"
+description = "Turn off Hagaki's background service. The shortcuts stop working and the macOS screenshot keys go back to macOS. Returns status."
+file = "tools.py"
+entrypoint = "stop_service"
+
+[[tool]]
 name = "list_displays"
 description = "Displays with id, origin and size in points (global coordinates, top-left origin) and pixel scale. Use the id as `display` in other tools."
 file = "tools.py"

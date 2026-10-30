@@ -105,6 +105,28 @@ def status() -> dict:
     return out
 
 
+def start_service(restart: bool = False) -> dict:
+    """Turn on Hagaki's background service (shortcuts and menu bar icon), or restart it."""
+    page = os.path.join(core.APP_DIR, "index.html")
+    if restart:
+        core.server_call("/api/apps/background/restart", {"html": page}, timeout=60)
+    else:
+        core.ensure_daemon()
+    deadline = time.time() + 15
+    while time.time() < deadline:
+        eng = core.engine()
+        if eng.get("running"):
+            break
+        time.sleep(0.5)
+    return status()
+
+
+def stop_service() -> dict:
+    """Turn off Hagaki's background service. The macOS screenshot keys go back to macOS."""
+    core.server_call("/api/apps/background/stop", {"html": os.path.join(core.APP_DIR, "index.html")}, timeout=60)
+    return status()
+
+
 def list_displays() -> dict:
     """Displays with id, origin and size in points (global top-left coordinates) and pixel scale."""
     return {"displays": core.displays()}
@@ -479,7 +501,7 @@ def recent_events(limit: int = 40, level: str = "") -> dict:
                        for e in core.events(limit=max(1, min(500, int(limit))), level=level)]}
 
 
-BOT_ACTIONS = ("status", "list_displays", "list_windows", "capture_screen", "capture_window", "capture_area",
+BOT_ACTIONS = ("status", "start_service", "stop_service", "list_displays", "list_windows", "capture_screen", "capture_window", "capture_area",
                "open_url", "capture_web_page", "ask_user_to_capture", "start_recording", "stop_recording", "search_captures", "latest_capture",
                "get_capture", "read_text", "rename_capture", "tag_capture", "copy_capture", "list_styles", "style_capture", "make_gif",
                "verify_captures", "recent_events", "open_in_hagaki")
