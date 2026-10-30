@@ -678,12 +678,12 @@ def render_video(item_id: str, opts: dict | None, zoom: dict | None, copy: bool 
     return core.get_item(new["id"])
 
 
-def _run_job(kind: str, item_id: str, work, failure: str) -> None:
+def _run_job(kind: str, item_id: str, work, failure: str, category: str = "style") -> None:
     try:
         set_job(kind, item_id, state="done", progress=1.0, **work(_reporter(kind, item_id)))
     except Exception as exc:
         set_job(kind, item_id, state="error", error=str(exc))
-        _core().log("error", "style", f"{failure}: {exc}", item_id)
+        _core().log("error", category, f"{failure}: {exc}", item_id)
         raise
 
 

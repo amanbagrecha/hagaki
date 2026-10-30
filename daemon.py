@@ -27,6 +27,7 @@ from Foundation import NSURL, NSMakeSize, NSObject, NSTimer
 from PyObjCTools import AppHelper
 
 import core
+import gif
 import hotkeys
 import marks
 import overlay
@@ -47,6 +48,7 @@ ACTIONS = {
     "window": "Capture Window",
     "screen": "Capture Screen",
     "record": "Record Area",
+    "gif": "Record GIF",
     "open": "Open Hagaki",
 }
 
@@ -87,6 +89,9 @@ class AppDelegate(NSObject):
 
     def recordRegion_(self, sender):
         APP.trigger("record")
+
+    def recordGif_(self, sender):
+        APP.trigger("gif")
 
     def openApp_(self, sender):
         APP.open_app()
@@ -172,7 +177,8 @@ class Hagaki:
             "bound_specs": self.bound,
             "errors": self.errors,
             "recording": None if not self.recording else {
-                "id": self.recording["id"], "started": self.recording["started"], "path": self.recording["path"]},
+                "id": self.recording["id"], "started": self.recording["started"], "path": self.recording["path"],
+                "gif": self.recording["gif"]},
             "override_system": bool(self.settings.get("override_system")),
             "captures": self.captures,
             "last_capture": self.last_capture,
@@ -241,6 +247,7 @@ class Hagaki:
             self._menu_item("Stop Recording", "recordRegion:", first("record"))
         else:
             self._menu_item("Record Area", "recordRegion:", first("record"))
+            self._menu_item("Record GIF", "recordGif:", first("gif"))
         self.menu.addItem_(NSMenuItem.separatorItem())
         self._menu_item("Open Hagaki", "openApp:", first("open"))
         self._menu_item("Open Screenshots Folder", "openFolder:")
@@ -288,7 +295,7 @@ class Hagaki:
         if action == "open":
             self.open_app()
             return
-        if action == "record" and self.recording:
+        if action in ("record", "gif") and self.recording:
             self.stop_recording()
             return
         if self.selector is not None or self.busy or self.starting:
@@ -296,7 +303,8 @@ class Hagaki:
         self.settings = core.load_settings()
         delay = float((self.settings.get("capture") or {}).get("delay") or 0)
         start = {"region": lambda: self.start_region("image"), "record": lambda: self.start_region("record"),
-                 "screen": self.capture_screen, "window": self.capture_window}.get(action)
+                 "gif": lambda: self.start_region("gif"), "screen": self.capture_screen,
+                 "window": self.capture_window}.get(action)
         if start is None:
             return
         self.busy = True
@@ -393,7 +401,7 @@ class Hagaki:
             shot["windows"] = self.local_windows(windows, shot)
         cap = self.settings.get("capture") or {}
         self.selector = overlay.RegionSelector(
-            mode, shots,
+            "record" if mode == "gif" else mode, shots,
             lambda shot, rect, win, drawn, action: self._safe(lambda: self.region_done(mode, shot, rect, win, drawn, action)),
             self.region_cancelled,
             snap=bool(cap.get("snap_windows", True)), magnifier=bool(cap.get("magnifier", True)),
@@ -441,8 +449,8 @@ class Hagaki:
         self.selector = None
         info = self.window_info(shot, rect, win)
         self.restore_front()
-        if mode == "record":
-            self.start_recording(shot, rect, info)
+        if mode in ("record", "gif"):
+            self.start_recording(shot, rect, info, mode == "gif")
             return
         crop = marks.render(shot["cgimage"], (shot["w"], shot["h"]), rect, drawn, shot.get("effects"))
         if drawn:
@@ -618,6 +626,8 @@ class Hagaki:
         title = "Saved and copied" if copied else "Saved"
         if item["kind"] == "video":
             title = "Recording saved" + (" and copied" if copied else "")
+        elif item["source"] == "gif":
+            title = "GIF saved" + (" and copied" if copied else "")
         overlay.Toast(item.get("thumb"), title, subtitle, lambda: self.open_app(item["id"]), screen=screen)
 
     def show_error(self, title, detail, what="screenshot"):
@@ -642,9 +652,9 @@ class Hagaki:
         except Exception:
             pass
 
-    def start_recording(self, shot, rect, info):
+    def start_recording(self, shot, rect, info, as_gif=False):
         settings = core.load_settings()
-        rec = settings.get("record") or {}
+        rec = settings.get("gif" if as_gif else "record") or {}
         when = time.time()
         k = shot["scale"] * core.scale_factor(shot["scale"], rec.get("scale"))
         meta = {"app": info.get("app"), "title": info.get("title"), "width": int(rect[2] * k), "height": int(rect[3] * k),
@@ -655,7 +665,8 @@ class Hagaki:
         audio = rec.get("audio") or "none"
         body = {"mode": "screen", "display": shot["display"], "rect": list(rect),
                 "audio": False if audio == "none" else audio, "cursor": bool(rec.get("cursor", True)),
-                "path": temp, "maxSeconds": int(rec.get("max_seconds") or 1800), "title": "Hagaki recording"}
+                "path": temp, "maxSeconds": int(rec.get("max_seconds") or (60 if as_gif else 1800)),
+                "title": "Hagaki recording"}
 
         self.starting = True
         tracker = reel.CursorTracker.on(shot, rect)
@@ -668,7 +679,7 @@ class Hagaki:
                 AppHelper.callAfter(self.recording_failed, str(exc))
                 return
             tracker.mark()
-            AppHelper.callAfter(self.recording_started, started, shot, rect, info, when, out, tracker)
+            AppHelper.callAfter(self.recording_started, started, shot, rect, info, when, out, tracker, as_gif)
 
         self.ctl.submit(go)
 
@@ -679,22 +690,24 @@ class Hagaki:
         self.show_error("Recording did not start", message, "recording")
         self.write_status()
 
-    def recording_started(self, started, shot, rect, info, when, out, tracker):
+    def recording_started(self, started, shot, rect, info, when, out, tracker, as_gif=False):
         shot = {k: v for k, v in shot.items() if k not in ("cgimage", "nsimage")}
         self.busy = False
         self.starting = False
         self.write_pending({"cid": started.get("id"), "temp": started.get("path"), "final": out, "info": info,
-                            "when": when, "display": shot.get("display"), "rect": list(rect), "scale": shot.get("scale") or 1})
+                            "when": when, "display": shot.get("display"), "rect": list(rect), "scale": shot.get("scale") or 1,
+                            "gif": as_gif})
         chrome = overlay.RecordingChrome(shot, rect, self.stop_recording, self.cancel_recording, self.draw_options(tracker))
         self.recording = {"id": started.get("id"), "path": started.get("path"), "final": out, "started": time.time(),
                           "chrome": chrome, "info": info, "shot": shot, "rect": rect, "when": when,
-                          "stopping": False, "polls": 0, "tracker": tracker}
+                          "stopping": False, "polls": 0, "tracker": tracker, "gif": as_gif}
         self.record_timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
             0.5, self.delegate, "recordTick:", None, True)
         if self.icon_rec is not None:
             self.status_item.button().setImage_(self.icon_rec)
         self.rebuild_menu()
-        core.log("info", "record", "Recording started", None, {"path": self.recording["path"], "rect": list(rect)})
+        core.log("info", "record", "GIF recording started" if as_gif else "Recording started", None,
+                 {"path": self.recording["path"], "rect": list(rect)})
         self.write_status()
 
     def draw_options(self, tracker):
@@ -812,6 +825,11 @@ class Hagaki:
             self.write_status()
             return
         self.clear_pending()
+        if r.get("gif"):
+            self.captures += 1
+            self.last_capture = r["when"]
+            self.pool.submit(self.save_gif, path, r)
+            return
         final = r.get("final")
         if final and path and os.path.exists(path) and os.path.abspath(path) != os.path.abspath(final):
             final = core.unique_path(os.path.dirname(final), os.path.splitext(os.path.basename(final))[0], os.path.splitext(path)[1] or ".mov")
@@ -849,6 +867,52 @@ class Hagaki:
                 AppHelper.callAfter(self.write_status)
 
         self.pool.submit(post)
+
+    def show_progress(self, text):
+        if not self.recording:
+            self.status_item.button().setTitle_(text)
+
+    def save_gif(self, src, r):
+        after = core.load_settings().get("after_capture") or {}
+        shot, info = r["shot"], r["info"]
+        try:
+            try:
+                item = gif.store(src, info, r["when"], shot.get("scale") or 1,
+                                 lambda p: AppHelper.callAfter(self.show_progress, f" GIF {int(p * 100)}%"),
+                                 display=shot.get("display"), rect=list(r["rect"]))
+            except Exception as exc:
+                traceback.print_exc()
+                core.log("error", "record", f"Making the GIF failed: {exc}")
+                try:
+                    kept = self.keep_video(src, r["final"], info, r["when"], shot.get("scale") or 1, shot.get("display"),
+                                           list(r["rect"]))
+                    reel.save_track(kept["id"], r["tracker"].track())
+                except Exception as keep_exc:
+                    core.log("error", "record", f"The video stays in the work folder: {keep_exc}")
+                AppHelper.callAfter(self.show_error, "The GIF failed",
+                                    f"{exc} Hagaki kept the video. Open it and click GIF to try again.", "recording")
+                return
+            os.remove(src)
+            copied = False
+            if after.get("clipboard", True):
+                copied = run_on_main(core.copy_gif, item["path"])
+                core.update_item(item["id"], clipboard=1 if copied else 0)
+                core.log("info", "clipboard", "GIF copied to the clipboard", item["id"])
+            if after.get("toast", True):
+                AppHelper.callAfter(self.show_toast, core.get_item(item["id"]), copied, shot.get("screen"))
+        except Exception as exc:
+            traceback.print_exc()
+            core.log("error", "record", f"Saving the GIF failed: {exc}")
+        finally:
+            AppHelper.callAfter(self.show_progress, "")
+            AppHelper.callAfter(self.write_status)
+
+    def keep_video(self, src, final, info, when, scale, display, rect):
+        final = core.unique_path(os.path.dirname(final), os.path.splitext(os.path.basename(final))[0], ".mov")
+        core.move_file(src, final)
+        ratio = core.fit_recording(final, scale)
+        return core.ingest(final, kind="video", source="record", app=info.get("app") or "", title=info.get("title") or "",
+                           bundle=info.get("bundle") or "", display=display, rect=rect, pixel_ratio=ratio, created=when)
 
     def show_agent_recording(self, cid, display=None, rect=None, started=None):
         screens = overlay.screens_info()
@@ -942,14 +1006,18 @@ class Hagaki:
             temp = p.get("temp")
             if not temp or not os.path.exists(temp):
                 return
-            final = p.get("final") or temp
-            final = core.unique_path(os.path.dirname(final), os.path.splitext(os.path.basename(final))[0], ".mov")
-            core.move_file(temp, final)
             info = p.get("info") or {}
-            ratio = core.fit_recording(final, p.get("scale") or 1)
-            core.ingest(final, kind="video", source="record", app=info.get("app") or "", title=info.get("title") or "",
-                        bundle=info.get("bundle") or "", display=p.get("display"), rect=p.get("rect"),
-                        pixel_ratio=ratio, created=p.get("when"))
+            if p.get("gif"):
+                try:
+                    gif.store(temp, info, p.get("when") or time.time(), p.get("scale") or 1, display=p.get("display"),
+                              rect=p.get("rect"))
+                    os.remove(temp)
+                    core.log("info", "record", "Saved a GIF recording that was open when Hagaki stopped")
+                    return
+                except Exception as exc:
+                    core.log("warn", "record", f"Could not make the GIF, so Hagaki keeps the video: {exc}")
+            self.keep_video(temp, p.get("final") or temp, info, p.get("when"), p.get("scale") or 1, p.get("display"),
+                            p.get("rect"))
             core.log("info", "record", "Saved a recording that was open when Hagaki stopped")
         except Exception as exc:
             core.log("error", "record", f"Could not save the open recording: {exc}")
@@ -982,7 +1050,7 @@ class Hagaki:
         if enable:
             syskeys.disable(core.SYSKEYS_BACKUP)
             core.save_settings({"override_system": True})
-            core.log("info", "settings", "Hagaki now uses ⌘⇧3, ⌘⇧4 and ⌘⇧5. The macOS screenshot shortcuts are off.")
+            core.log("info", "settings", "Hagaki now uses ⌘⇧3, ⌘⇧4, ⌘⇧5 and ⌘⇧6. The macOS screenshot shortcuts are off.")
         else:
             syskeys.restore(core.SYSKEYS_BACKUP)
             core.save_settings({"override_system": False})
@@ -1081,8 +1149,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             if route == "/capture":
                 mode = str(body.get("mode") or "region")
-                if mode not in ("region", "screen", "window", "record"):
-                    return self._send(400, {"error": "mode must be region, screen, window or record"})
+                if mode not in ("region", "screen", "window", "record", "gif"):
+                    return self._send(400, {"error": "mode must be region, screen, window, record or gif"})
                 rect = body.get("rect")
                 if rect is not None and mode == "region":
                     if not (isinstance(rect, list) and len(rect) == 4 and all(isinstance(n, (int, float)) for n in rect)):

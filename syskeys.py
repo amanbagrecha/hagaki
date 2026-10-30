@@ -18,7 +18,7 @@ SCREENSHOT_KEYS = {
     "184": {"label": "Screenshot and recording options", "spec": "cmd+shift+5", "parameters": [53, 23, CMD | SHIFT]},
 }
 
-REPLACEMENTS = {"screen": "cmd+shift+3", "region": "cmd+shift+4", "record": "cmd+shift+5"}
+REPLACEMENTS = {"screen": "cmd+shift+3", "region": "cmd+shift+4", "record": "cmd+shift+5", "gif": "cmd+shift+6"}
 
 
 def _plain(value):

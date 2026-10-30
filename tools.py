@@ -12,6 +12,7 @@ if _APP_DIR not in sys.path:
     sys.path.insert(0, _APP_DIR)
 
 import core
+import gif
 import reel
 
 RECORDINGS = os.path.join(core.DATA_DIR, "agent_recordings.json")
@@ -198,16 +199,17 @@ def capture_web_page(url: str, width: int = 1440, height: int = 900, full_page: 
 
 def ask_user_to_capture(mode: str = "region", timeout: int = 120) -> dict:
     """Open Hagaki's selection overlay so the person picks an area, then wait for that capture."""
-    if mode not in ("region", "window", "screen", "record"):
-        raise ValueError("mode must be region, window, screen or record")
+    if mode not in ("region", "window", "screen", "record", "gif"):
+        raise ValueError("mode must be region, window, screen, record or gif")
     start = time.time()
     core.daemon_call("/capture", {"mode": mode}, start=True)
     want = "video" if mode == "record" else "image"
+    only = "='gif'" if mode == "gif" else " NOT IN ('import', 'gif')"
     deadline = start + max(5, int(timeout))
     while time.time() < deadline:
         time.sleep(0.6)
         conn = core.connect()
-        row = conn.execute("SELECT id FROM items WHERE created>=? AND kind=? AND source<>'import' AND deleted IS NULL "
+        row = conn.execute(f"SELECT id FROM items WHERE created>=? AND kind=? AND source{only} AND deleted IS NULL "
                            "ORDER BY created DESC LIMIT 1", (start - 1, want)).fetchone()
         conn.close()
         if row:
@@ -234,8 +236,10 @@ def _save_recs(recs: dict) -> None:
 
 
 def start_recording(x: float = 0, y: float = 0, width: float = 0, height: float = 0, display: int = 0,
-                    app: str = "", title: str = "", audio: str = "none", max_seconds: int = 300) -> dict:
+                    app: str = "", title: str = "", audio: str = "none", max_seconds: int = 0, gif: bool = False) -> dict:
     """Start a screen recording of an area, a window (app/title) or a full display. Stop it with stop_recording."""
+    if gif:
+        audio = "none"
     if audio not in ("none", "mic", "system", "both"):
         raise ValueError("audio must be none, mic, system or both")
     windows, displays = _windows()
@@ -256,15 +260,18 @@ def start_recording(x: float = 0, y: float = 0, width: float = 0, height: float 
         info = {"app": front["app"], "title": ""}
     when = time.time()
     temp = os.path.join(core.WORK_DIR, f"agent-rec-{int(when * 1000)}.mov")
-    body = {"mode": "screen", "display": d["id"], "audio": False if audio == "none" else audio, "cursor": True,
-            "path": temp, "maxSeconds": max(1, min(3600, int(max_seconds))), "title": "Hagaki recording"}
+    gif_settings = core.load_settings().get("gif") or {}
+    cursor = bool(gif_settings.get("cursor", True)) if gif else True
+    limit = int(max_seconds) or (int(gif_settings.get("max_seconds") or 60) if gif else 300)
+    body = {"mode": "screen", "display": d["id"], "audio": False if audio == "none" else audio, "cursor": cursor,
+            "path": temp, "maxSeconds": max(1, min(3600, limit)), "title": "Hagaki recording"}
     if rect:
         body["rect"] = rect
     rec = core.server_call("/api/capture/start", body, timeout=40)
     began = time.time()
     recs = _load_recs()
     recs[rec["id"]] = {"temp": rec.get("path") or temp, "display": d["id"], "rect": rect, "info": info,
-                       "started": when, "scale": d.get("scale", 1)}
+                       "started": when, "scale": d.get("scale", 1), "gif": bool(gif)}
     _save_recs(recs)
     core.log("info", "record", "Recording started by an agent", None, {"rect": rect, "display": d["id"]})
     try:
@@ -273,7 +280,7 @@ def start_recording(x: float = 0, y: float = 0, width: float = 0, height: float 
                              start=False, timeout=15)
     except Exception:
         pass
-    return {"recording_id": rec["id"], "max_seconds": body["maxSeconds"], "display": d["id"], "rect": rect}
+    return {"recording_id": rec["id"], "max_seconds": body["maxSeconds"], "display": d["id"], "rect": rect, "gif": bool(gif)}
 
 
 def stop_recording(recording_id: str = "") -> dict:
@@ -296,8 +303,21 @@ def stop_recording(recording_id: str = "") -> dict:
     path = res.get("path") or rec["temp"]
     if not os.path.exists(path):
         raise RuntimeError(f"the recording file is missing: {res.get('error') or path}")
-    settings = core.load_settings()
     info = rec.get("info") or {}
+    warning = res.get("warning")
+    if rec.get("gif"):
+        try:
+            item = gif.store(path, info, rec["started"], rec.get("scale") or 1, display=rec.get("display"),
+                             rect=rec.get("rect"))
+        except Exception as exc:
+            warning = f"The GIF failed, so Hagaki saved the video: {exc}"
+        else:
+            os.remove(path)
+            recs = _load_recs()
+            recs.pop(rid, None)
+            _save_recs(recs)
+            return {"capture": _summary(item)}
+    settings = core.load_settings()
     meta = {"app": info.get("app"), "title": info.get("title"), "kind": "video", "source": "record"}
     stem = core.format_name(settings.get("name_pattern"), meta, rec["started"])
     final = core.unique_path(core.target_folder(settings, rec["started"]), stem, os.path.splitext(path)[1] or ".mov")
@@ -312,8 +332,8 @@ def stop_recording(recording_id: str = "") -> dict:
     recs.pop(rid, None)
     _save_recs(recs)
     out = {"capture": _summary(item)}
-    if res.get("warning"):
-        out["warning"] = res["warning"]
+    if warning:
+        out["warning"] = warning
     return out
 
 
@@ -402,6 +422,22 @@ def style_capture(id: str, bg: str = "", frame: str = "", padding: float = -1, r
     return {"capture": _summary(item)}
 
 
+def make_gif(id: str, fps: int = 0, size: int = -1, colors: str = "", once: bool = False) -> dict:
+    """Make an animated GIF from a recording (also a styled one) and add it to the library."""
+    opts = {}
+    if int(fps) > 0:
+        opts["fps"] = int(fps)
+    if int(size) >= 0:
+        opts["size"] = int(size)
+    if colors:
+        if colors not in gif.COLORS:
+            raise ValueError(f"colors must be one of: {', '.join(gif.COLORS)}")
+        opts["colors"] = colors
+    if once:
+        opts["loop"] = False
+    return {"capture": _summary(gif.make(id, opts))}
+
+
 def copy_capture(id: str) -> dict:
     """Put a capture on the clipboard (image data, or the file for a recording)."""
     return core.copy_item(id)
@@ -445,7 +481,7 @@ def recent_events(limit: int = 40, level: str = "") -> dict:
 
 BOT_ACTIONS = ("status", "list_displays", "list_windows", "capture_screen", "capture_window", "capture_area",
                "open_url", "capture_web_page", "ask_user_to_capture", "start_recording", "stop_recording", "search_captures", "latest_capture",
-               "get_capture", "read_text", "rename_capture", "tag_capture", "copy_capture", "list_styles", "style_capture",
+               "get_capture", "read_text", "rename_capture", "tag_capture", "copy_capture", "list_styles", "style_capture", "make_gif",
                "verify_captures", "recent_events", "open_in_hagaki")
 
 

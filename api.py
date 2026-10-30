@@ -10,6 +10,7 @@ if APP_DIR not in sys.path:
     sys.path.insert(0, APP_DIR)
 
 import core
+import gif
 import reel
 
 
@@ -132,6 +133,8 @@ def main(op: str = "list", id: str = "", q: str = "", kind: str = "all", app: st
         return reel.start_style(id, json.loads(request or "{}"))
     if op == "detect_clicks":
         return reel.start_detect(id)
+    if op == "make_gif":
+        return gif.start(id)
     if op == "video_job":
         return reel.job_state(kind, id)
     if op == "reveal":

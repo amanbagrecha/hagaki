@@ -48,19 +48,19 @@ entrypoint = "capture_web_page"
 
 [[tool]]
 name = "ask_user_to_capture"
-description = "Show Hagaki's selection overlay so the person drags an area (mode region), picks a window (window), the full screen (screen) or records an area (record; the person stops it). Waits up to timeout seconds and returns the new capture, or null if they pressed Esc."
+description = "Show Hagaki's selection overlay so the person drags an area (mode region), picks a window (window), the full screen (screen) or records an area (record, or gif for an animated GIF; the person stops it). Waits up to timeout seconds and returns the new capture, or null if they pressed Esc."
 file = "tools.py"
 entrypoint = "ask_user_to_capture"
 
 [[tool]]
 name = "start_recording"
-description = "Start a silent screen recording: an area (x, y, width, height in points; global unless display is set), a window (app/title text), or a full display (nothing set). audio: none, mic, system or both. Stops itself after max_seconds. Returns recording_id."
+description = "Start a silent screen recording: an area (x, y, width, height in points; global unless display is set), a window (app/title text), or a full display (nothing set). audio: none, mic, system or both. Stops itself after max_seconds (0 = 300 s, or the GIF setting for a GIF). gif true saves an animated GIF instead of a .mov (no sound; frame rate, size, colors and loop come from Hagaki's GIF settings). Returns recording_id."
 file = "tools.py"
 entrypoint = "start_recording"
 
 [[tool]]
 name = "stop_recording"
-description = "Stop a recording made by start_recording (default the newest), save the .mov in the library and return the capture."
+description = "Stop a recording made by start_recording (default the newest), save the .mov (or the .gif if it started with gif true) in the library and return the capture. A GIF takes about 0.4 s per second of video to make."
 file = "tools.py"
 entrypoint = "stop_recording"
 
@@ -111,6 +111,12 @@ name = "style_capture"
 description = "Make a styled copy of a screenshot or a recording and add it to the library. bg = background id, frame = window frame id, aspect = shape id (auto, 16:9, 4:3, 1:1, 9:16, 3:2, 2:1); padding 0-25 (% space around), radius 0-40, shadow 0-100, inset 0-40 (-1 keeps the default); title = text in the window bar; caption = a line under the image; stamp true adds a stamp and postmark; scale 0.5-2 (screenshots only); copy true puts it on the clipboard. For a recording the result is an MP4: zoom true zooms in at each click, zoom_amount 1.2-3, follow true moves the view with the cursor, rings 1 shows a ring at each click (0 off, -1 = on only for clicks recorded during capture). New recordings carry exact clicks; for an older recording find_clicks true first estimates clicks on this Mac from motion and the Moondream 2 vision model (about 0.6 s per second of video). The video render takes about 1 s per 2 s of video. Get ids from list_styles."
 file = "tools.py"
 entrypoint = "style_capture"
+
+[[tool]]
+name = "make_gif"
+description = "Make an animated GIF from a recording or a styled recording (id from search_captures) and add it to the library beside it. fps 1-30 (0 = the GIF setting, default 15); size = the longest side in pixels, such as 480, 720 or 1080 (0 = the size on screen in points, -1 = the GIF setting); colors: fewer (64 colors, smallest file), normal (256) or smooth (256 with dithering, for photos and gradients), empty = the GIF setting; once true plays the GIF one time instead of in a loop. Takes about 0.4 s per second of video at 720 px."
+file = "tools.py"
+entrypoint = "make_gif"
 
 [[tool]]
 name = "copy_capture"

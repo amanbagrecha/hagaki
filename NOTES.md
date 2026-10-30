@@ -35,12 +35,15 @@
 - ScreenCaptureKit recordings have a variable frame rate, so `nominalFrameRate` is an average (43 fps for a 60 Hz capture); a re-encode at that rate made motion choppy. Hagaki now takes the rate from `minFrameDuration` (capped at 60).
 - In a plain bundled-Python process, `NSCursor.IBeamCursor()` returned None (other cursors were fine); Hagaki falls back to the crosshair.
 - A window with the default sharing type is in a ScreenCaptureKit recording and a `sharingType 0` panel is not, so the draw layer is in the video and the draw tool strip is not.
+- The `/draw marks` test hook takes marks as they are; a mark with `tool` and no `kind` raised in the draw layer's `drawRect_` and AppKit ended the daemon (`_crashOnException`). The pending GIF recording was saved as a GIF on the next start.
+- Pillow's `save(save_all=True)` keeps every GIF frame in memory and gives each frame its own palette; `gif.py` writes each frame as it comes, with one palette, through the public `GifImagePlugin.getdata`.
+- A browser plays a GIF delay under 2 cs at 10 cs, and GIF delays are whole centiseconds; `gif.py` takes each delay from rounded absolute times, so 15 fps alternates 6 and 7 cs and the total length stays exact.
 - Moondream 2 `point` misses the I-beam text cursor and sometimes points at a cursor-like toolbar icon; at 640 px it misses more. Hagaki uses motion to follow the cursor and asks the model only at likely clicks.
 
 ## Harness ideas
 - `capture_web_page` drives headless Chrome over `--remote-debugging-pipe` (fd 3/4) because the app venv has no websocket client; a small CDP helper in the runtime would help each app that screenshots pages.
 - Put `fused-render calls` on PATH in Claude sessions; I read `~/.fused-render/logs/<app>/*.calls.jsonl` by hand.
-- Ship a page driver (open, wait for runPython, click, screenshot, console); I wrote a small CDP script for this.
+- Ship a page driver (open, wait for runPython, click, screenshot, console); `dev/page_check.py` is Hagaki's (headless Chrome over `--remote-debugging-pipe`, steps as JSON: go, js, until, sleep, shot).
 - Headless `--virtual-time-budget` does not wait for runPython WebSocket replies, and `/explorer/embed/` hides iframe console errors; `/render?path=` works.
 - Give daemons a test hook for native UI; I added `/capture {rect}` and `/selection {finish|cancel}` so tests need no synthetic mouse.
 - macOS has no `timeout` command; a portable wait helper in the shell would help.
@@ -53,14 +56,15 @@
 - A headless Chrome screenshot of `/render?path=…/index.html` stays at "Loading…" because the gallery data does not come, so a visual check of a style change needs a static sample page. A "render with data, headless" screenshot endpoint would help agents check UI changes.
 - Headless Chrome over `--remote-debugging-pipe` with `/render?path=…` and `fused.params.set(...)` did load the gallery data and the video editor, so a page check works when the driver waits for the page instead of `--virtual-time-budget`.
 - A first Moondream call on an image takes about 1 s and later prompts on the same image about 0.14 s; a `points` call with several prompts in one request would halve the cost.
-- `mcp__fused_approvals__app_state` timed out (20 s) while the Hagaki page was open, so I checked the Settings page with the headless Chrome driver.
+- `mcp__fused_approvals__app_state` timed out (20 s) while the Hagaki page was open, so I checked the Settings page with the headless Chrome driver. This happened again for the GIF work.
 - Native overlay UI cannot be tested with real clicks here; a hidden `NSWindow` plus in-process `NSEvent` objects sent to the view (`dev/annotate_check.py`) tests the tool bar with no change to the screen.
 - A "cursor and clicks" track from `fused.capture` recordings (as Screen Studio keeps) would give every app exact zoom data; Hagaki polls the cursor in its daemon for this.
 
 ## To do
 - Edit the marks again after a save (keep the marks JSON and the clean image beside the file), and annotate from the gallery.
 - An MCP tool that adds marks (arrow, box, text, blur) to a capture, with `marks.render`.
-- GIF export, scrolling capture, pin to screen.
+- Scrolling capture, pin to screen.
+- GIF: trim before the GIF is made, a GIF size estimate in Settings, and an MP4 or WebP choice for chat apps that do not play GIFs.
 - Video editor: drag a zoom span, add a zoom by hand, trim, a smooth cursor drawn by Hagaki (record with the cursor hidden).
 - EmbeddingGemma 2 buckets and meaning search; AI rename on by default.
 - More upload targets (S3, Imgur) and a URL shortener.

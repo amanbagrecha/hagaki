@@ -1,6 +1,6 @@
 # Hagaki
 
-Hagaki is a screenshot and screen recording app for macOS. It runs inside FusedRender. It works like ShareX: press a shortcut, drag an area, and the capture goes to the clipboard and the gallery. It does not ask.
+Hagaki is a screenshot, screen recording and GIF app for macOS. It runs inside FusedRender. It works like ShareX: press a shortcut, drag an area, and the capture goes to the clipboard and the gallery. It does not ask.
 
 ## Start
 1. Open Hagaki in FusedRender.
@@ -15,10 +15,11 @@ Hagaki is a screenshot and screen recording app for macOS. It runs inside FusedR
 | ⌥⇧2 | Capture the front window |
 | ⌥⇧3 | Capture the full screen |
 | ⌥⇧5 | Record an area. Press again to stop. |
+| ⌥⇧6 | Record a GIF. Press again to stop. |
 | ⌥⇧H | Open Hagaki |
 | ⌘V (in the Hagaki window) | Add the image or image file on the clipboard to the gallery |
 
-To use ⌘⇧3, ⌘⇧4 and ⌘⇧5, turn on **Settings › Shortcuts › Use the macOS screenshot keys**. Hagaki asks first and keeps a copy of your macOS settings. macOS gets the keys back when you turn this off or when Hagaki stops.
+To use ⌘⇧3, ⌘⇧4, ⌘⇧5 and ⌘⇧6 (GIF), turn on **Settings › Shortcuts › Use the macOS screenshot keys**. Hagaki asks first and keeps a copy of your macOS settings. macOS gets the keys back when you turn this off or when Hagaki stops.
 
 ## What Hagaki does
 - Lets you mark up an area before you save it: arrow, box, ellipse, line, pen, marker, text, step numbers, spotlight, blur and pixelate.
@@ -29,6 +30,7 @@ To use ⌘⇧3, ⌘⇧4 and ⌘⇧5, turn on **Settings › Shortcuts › Use th
 - Checks each file with SHA-256 and keeps a log of each event.
 - Styles a screenshot with Japanese backgrounds, window frames (macOS, Windows, Linux, postcard), padding, corners and shadow.
 - Styles a recording the same way and zooms in where you click. The result is a new MP4 with the sound of the original.
+- Records an area as an animated GIF, or makes a GIF from a recording or a styled recording.
 - Renames a capture with AI (the wand button).
 - Puts a capture online with a Fused share link. All public captures share one canvas, `hagaki_public`; temporary ones share `hagaki_temporary`.
 
@@ -65,6 +67,28 @@ Hagaki keeps your last tool, colour and size. To save when you release the mouse
 
 Each mark fades after 3 seconds. To keep the marks, click the timer button, or turn off **Settings › Recording › Fade the marks you draw**. While you draw, Hagaki does not keep your clicks for the zoom on clicks.
 
+## Record a GIF
+1. Press **⌥⇧6** (or click **GIF** in Hagaki, or **Record GIF** in the menu bar).
+2. Drag an area, click a window, or press Space for the full screen.
+3. Press **⌥⇧6** again or click the stop button. Hagaki makes the GIF, saves it and copies it.
+
+You can draw on the screen while you record, the same as for a video. A GIF has no sound. GIFs are in **Recordings** in the gallery.
+
+To make a GIF from a recording, open the recording and click **GIF**. This also works for a styled recording, so the GIF can zoom on clicks.
+
+Set the GIF in **Settings › GIF**:
+
+| Setting | Choices |
+|---|---|
+| Frame rate | 10, 15 (default), 20 or 30 frames each second |
+| Size | The longest side: 480, 720 (default) or 1080 px, or Screen (the size on the screen) |
+| Colors | Fewer (64 colors, the smallest file), Normal (256) or Smooth (256 colors mixed for photos and gradients) |
+| Play in a loop | On (default) or off (the GIF plays one time) |
+| Show the pointer | On (default) or off |
+| Maximum length | 15 s, 30 s, 1 min (default) or 2 min |
+
+If Hagaki cannot make the GIF, it keeps the video. Open the video and click **GIF** to try again.
+
 ## Style a recording and zoom on clicks
 1. Open a recording and click **Style**.
 2. Select a background and a frame. The preview plays the video in the style.
@@ -76,7 +100,7 @@ Each new recording keeps the cursor path and the clicks (Hagaki reads them from 
 An older recording has no click data. Click **Find clicks with AI**: Hagaki looks at the motion in the video and asks the Moondream 2 vision model on this Mac where the cursor is. These clicks are an estimate. A dot under the video shows each click; select a dot to turn its zoom off or on.
 
 ## For agents
-- MCP: `fused app serve <this folder>` serves the tools in `mcp.toml` (capture, record, web pages, search, read text, rename, share).
+- MCP: `fused app serve <this folder>` serves the tools in `mcp.toml` (capture, record, GIF, web pages, search, read text, rename, share).
 - Claude Code has it as `hagaki-mcp` (user scope), so each Claude session on this Mac gets the tools, also a session you control from your phone. To add it again, open the MCP pane of this folder in FusedRender and click Register.
 - FusedRender bots (also over iMessage) call the same tools; see `SKILL.md`.
 - `capture_web_page` uses a hidden Chrome. It works when the screen is locked or nobody is at the Mac. `open_url` and `capture_window` show the page in your own browser, with your logins.
@@ -88,6 +112,7 @@ An older recording has no click data. Click **Find clicks with AI**: Hagaki look
 | `index.html` | Gallery, logs, settings and style editor |
 | `studio.js` | Background and frame renderer (also the style plate for videos) |
 | `reel.py` | Video style and zoom: cursor tracker, zoom plan, click estimate, video export |
+| `gif.py` | GIF from a recording: frames, one palette, changed-area frames, GIF file |
 | `daemon.py` | Background service: shortcuts, menu bar icon, overlay, recording |
 | `overlay.py` | Area selector and tool bar, recording frame and draw layer, preview toast |
 | `marks.py` | Annotation marks: tools, keys and one renderer for the screen and the saved image |

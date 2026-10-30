@@ -44,6 +44,7 @@ DEFAULT_SETTINGS = {
         "screen": "alt+shift+3",
         "window": "alt+shift+2",
         "record": "alt+shift+5",
+        "gif": "alt+shift+6",
         "open": "alt+shift+h",
     },
     "override_system": False,
@@ -58,6 +59,7 @@ DEFAULT_SETTINGS = {
     },
     "capture": {"cursor": False, "snap_windows": True, "magnifier": True, "delay": 0, "scale": 1, "annotate": True},
     "record": {"audio": "none", "cursor": True, "max_seconds": 1800, "scale": 1, "draw_fade": True},
+    "gif": {"fps": 15, "size": 720, "colors": "normal", "loop": True, "max_seconds": 60, "cursor": True},
     "annotate": {"tool": "arrow", "color": 0, "size": 1, "fill": False},
     "draw": {"tool": "pen", "color": 0, "size": 1, "fill": False},
     "share": {"mode": "public", "copy_link": True},
@@ -216,7 +218,7 @@ def format_name(pattern: str, info: dict, when: float | None = None) -> str:
         "title": title[:70],
         "w": str(info.get("width") or ""),
         "h": str(info.get("height") or ""),
-        "kind": "Recording" if info.get("kind") == "video" else "Screenshot",
+        "kind": {"video": "Recording", "gif": "GIF"}.get(info.get("kind"), "Screenshot"),
         "source": info.get("source") or "",
         "rand": uuid.uuid4().hex[:4],
     }
@@ -556,7 +558,7 @@ def ingest(path: str, *, kind: str | None = None, source: str = "import", app: s
     thumb = make_thumb(item_id, path, kind)
     if thumb:
         update_item(item_id, thumb=thumb)
-    label = {"image": "Screenshot", "video": "Recording", "styled": "Styled image"}.get(kind, "File")
+    label = "GIF" if source == "gif" else {"image": "Screenshot", "video": "Recording", "styled": "Styled image"}.get(kind, "File")
     log("info", "capture" if source != "import" else "import", f"{label} saved: {os.path.basename(path)}", item_id,
         {"path": path, "bytes": size, "width": width, "height": height, "source": source})
     return get_item(item_id) or row
@@ -611,6 +613,10 @@ def list_items(q: str = "", kind: str = "all", app: str = "", days: int = 0, lim
     args: list = []
     if kind == "styled":
         where.append("(kind='styled' OR source='style')")
+    elif kind == "video":
+        where.append("(kind='video' OR source='gif')")
+    elif kind == "image":
+        where.append("kind='image' AND source<>'gif'")
     elif kind and kind != "all":
         where.append("kind=?")
         args.append(kind)
@@ -681,6 +687,10 @@ def facets() -> dict:
         "SELECT COUNT(*) FROM items WHERE deleted IS NULL AND kind='video' AND source='style'").fetchone()[0]
     if styled_videos:
         kinds["styled"] = kinds.get("styled", 0) + styled_videos
+    gifs = conn.execute("SELECT COUNT(*) FROM items WHERE deleted IS NULL AND source='gif'").fetchone()[0]
+    if gifs:
+        kinds["image"] = kinds.get("image", 0) - gifs
+        kinds["video"] = kinds.get("video", 0) + gifs
     shared = conn.execute("SELECT COUNT(*) FROM items WHERE deleted IS NULL AND share_url IS NOT NULL").fetchone()[0]
     midnight = time.mktime(dt.date.today().timetuple())
     today = conn.execute("SELECT COUNT(*) FROM items WHERE deleted IS NULL AND created>=?", (midnight,)).fetchone()[0]
@@ -909,6 +919,21 @@ def copy_file(path: str) -> bool:
     return bool(pb.writeObjects_([NSURL.fileURLWithPath_(path)]))
 
 
+def copy_gif(path: str) -> bool:
+    from AppKit import NSPasteboard, NSPasteboardItem
+    from Foundation import NSData, NSURL
+
+    data = NSData.dataWithContentsOfFile_(path)
+    if data is None:
+        return False
+    pb = NSPasteboard.generalPasteboard()
+    pb.clearContents()
+    item = NSPasteboardItem.alloc().init()
+    item.setData_forType_(data, "com.compuserve.gif")
+    item.setString_forType_(NSURL.fileURLWithPath_(path).absoluteString(), "public.file-url")
+    return bool(pb.writeObjects_([item]))
+
+
 def copy_text(text: str) -> bool:
     from AppKit import NSPasteboard
 
@@ -967,7 +992,12 @@ def copy_item(item_id: str) -> dict:
     item = get_item(item_id)
     if not item or not os.path.exists(item["path"]):
         raise FileNotFoundError("the file is missing")
-    ok = copy_file(item["path"]) if item["kind"] == "video" else copy_image(item["path"])
+    if item["kind"] == "video":
+        ok = copy_file(item["path"])
+    elif item.get("ext") == ".gif":
+        ok = copy_gif(item["path"])
+    else:
+        ok = copy_image(item["path"])
     log("info" if ok else "error", "clipboard",
         ("Copied to the clipboard" if ok else "Could not copy to the clipboard") + f": {item['name']}", item_id)
     return {"ok": ok}

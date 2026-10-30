@@ -8,6 +8,7 @@ if APP_DIR not in sys.path:
     sys.path.insert(0, APP_DIR)
 
 import core
+import gif
 import reel
 
 
@@ -36,6 +37,8 @@ def main(argv: list[str]) -> int:
             reel.run_style_job(item_id)
         elif op == "detect_clicks":
             reel.run_detect_job(item_id)
+        elif op == "make_gif":
+            gif.run_job(item_id)
         else:
             return 2
     except Exception as exc:

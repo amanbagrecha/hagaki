@@ -404,6 +404,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
     window: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/><circle cx="6" cy="7" r=".6" fill="currentColor"/><circle cx="8.2" cy="7" r=".6" fill="currentColor"/></svg>',
     screen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
     record: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></svg>',
+    gif: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3"/><path stroke-width="1.6" d="M9.3 10.4A2.3 2.5 0 1 0 9.7 12.4H8.1M12.4 9.5v5M18.4 9.5h-3v5M15.4 12h2.4"/></svg>',
     folder: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>',
     copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>',
     style: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><rect x="7" y="7" width="10" height="8" rx="1.5"/><path d="M7 18.5h6"/></svg>',
@@ -426,7 +427,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
     nav: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M9.5 4.5v15"/></svg>',
     vboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3.5" y="4.5" width="5" height="15" rx="1.5"/><rect x="10" y="4.5" width="5" height="10" rx="1.5"/><rect x="16.5" y="4.5" width="4" height="12" rx="1.5"/></svg>',
   };
-  const CAPTURES = [["region", "Area", "area"], ["window", "Window", "window"], ["screen", "Screen", "screen"], ["record", "Record", "record"]];
+  const CAPTURES = [["region", "Area", "area"], ["window", "Window", "window"], ["screen", "Screen", "screen"], ["record", "Record", "record"], ["gif", "GIF", "gif"]];
   const KIND_ICONS = { all: "folder", image: "screen", video: "play", styled: "style" };
   const VIEWS = [["gallery", "Gallery", "vgallery"], ["list", "List", "vlist"], ["table", "Table", "vtable"], ["board", "Board", "vboard"]];
   const GROUPS = [["app", "App"], ["kind", "Type"], ["day", "Day"]];
@@ -435,8 +436,8 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
 
   const KINDS = [["all", "All"], ["image", "Screenshots"], ["video", "Recordings"], ["styled", "Styled"]];
   const DAYS = [["0", "Any time"], ["1", "Today"], ["7", "Last 7 days"], ["30", "Last 30 days"], ["365", "Last year"]];
-  const SOURCES = { region: "Area", window: "Window", screen: "Full screen", record: "Screen recording", web: "Web page", style: "Style editor", import: "Import", paste: "Clipboard" };
-  const ACTION_LABELS = { region: "Capture an area", window: "Capture the front window", screen: "Capture the full screen", record: "Record an area", open: "Open Hagaki" };
+  const SOURCES = { region: "Area", window: "Window", screen: "Full screen", record: "Screen recording", gif: "GIF", web: "Web page", style: "Style editor", import: "Import", paste: "Clipboard" };
+  const ACTION_LABELS = { region: "Capture an area", window: "Capture the front window", screen: "Capture the full screen", record: "Record an area", gif: "Record a GIF", open: "Open Hagaki" };
 
   const state = {
     preview: false,
@@ -557,7 +558,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
     chip.classList.toggle("rec", !!rec);
     let text = d.running ? "On" : d.autostart ? "Starting…" : "Off";
     if (d.running && state.dstat && state.dstat.paused) text = "Paused";
-    if (rec) text = "Recording · click to stop";
+    if (rec) text = rec.gif ? "Recording GIF · click to stop" : "Recording · click to stop";
     else if (d.running && keyLabel("region")) text += " · " + keyLabel("region");
     $("#statusText").textContent = text;
     chip.title = rec ? "Click to stop the recording." : d.running ? "Hagaki is on" + (d.autostart ? " and starts with Fused Render" : "") + ". Click to turn it off." : "Hagaki is off. Click to turn it on.";
@@ -658,7 +659,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
   function mediaHtml(it) {
     const src = thumbUrl(it);
     return (src ? `<img loading="lazy" decoding="async" alt="" src="${esc(src)}">` : `<div class="ph">No preview</div>`)
-      + (it.kind === "video" ? `<span class="play">${ICONS.play}${it.duration ? fmtDur(it.duration) : "Video"}</span>` : "");
+      + (it.kind === "video" ? `<span class="play">${ICONS.play}${it.duration ? fmtDur(it.duration) : "Video"}</span>` : isGif(it) ? `<span class="play">GIF</span>` : "");
   }
 
   function cardHtml(it) {
@@ -674,7 +675,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
   }
 
   function rowHtml(it) {
-    const sub = it.snippet || [KIND_LABELS[it.kind] || it.kind, itemSrc(it), dimsText(it), fmtBytes(it.bytes)].filter(Boolean).join(" · ");
+    const sub = it.snippet || [kindLabel(it), itemSrc(it), dimsText(it), fmtBytes(it.bytes)].filter(Boolean).join(" · ");
     return `<button class="lrow it${selCls(it)}" data-id="${esc(it.id)}" type="button" title="${esc(it.name)}">
       <span class="lthumb">${mediaHtml(it)}</span>
       <span class="lmain"><span class="lname">${esc(it.name)}</span><span class="lsub">${esc(sub)}</span></span>
@@ -685,7 +686,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
   function sortVal(it, col) {
     if (col === "dims") return (it.width || 0) * (it.height || 0);
     if (col === "bytes" || col === "created") return it[col] || 0;
-    if (col === "kind") return KIND_LABELS[it.kind] || it.kind || "";
+    if (col === "kind") return kindLabel(it);
     if (col === "app") return itemSrc(it).toLowerCase();
     return String(it[col] || "").toLowerCase();
   }
@@ -706,7 +707,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
       return `<tr class="it${selCls(it)}" data-id="${esc(it.id)}" tabindex="0">
         <td><div class="tthumb">${src ? `<img loading="lazy" decoding="async" alt="" src="${esc(src)}">` : ""}</div></td>
         <td class="nm" title="${esc(it.name)}">${esc(it.name)}</td>
-        <td>${esc(KIND_LABELS[it.kind] || it.kind)}${it.duration ? " · " + fmtDur(it.duration) : ""}</td>
+        <td>${esc(kindLabel(it))}${it.duration ? " · " + fmtDur(it.duration) : ""}</td>
         <td>${esc(itemSrc(it))}</td>
         <td title="${esc(it.title || "")}">${esc(it.title || "")}</td>
         <td class="num">${dimsText(it)}</td>
@@ -720,7 +721,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
   function boardGroups(items) {
     const g = curGroup(); const m = new Map();
     for (const it of items) {
-      const k = g === "kind" ? (KIND_LABELS[it.kind] || it.kind) : g === "day" ? dayLabel(it.created) : (itemSrc(it) || "Other");
+      const k = g === "kind" ? kindLabel(it) : g === "day" ? dayLabel(it.created) : (itemSrc(it) || "Other");
       if (!m.has(k)) m.set(k, []);
       m.get(k).push(it);
     }
@@ -879,7 +880,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
         ${it.ocr ? `<button class="btn small ghost" data-act="copy-ocr" type="button">Copy text</button>` : ""}
         <button class="btn small ghost" data-act="ocr" type="button"${busy.ocr ? " disabled" : ""}>${busy.ocr ? "Reading…" : it.ocr_state === "done" ? "Read again" : "Read text"}</button></h4>
         ${it.ocr ? `<div class="ocr scroll">${esc(it.ocr)}</div>` : `<div class="muted">${it.ocr_state === "pending" ? "Hagaki reads the text soon." : it.ocr_state === "error" ? "Text reading failed." : "No text found."}</div>`}</div>`;
-    const children = D.children && D.children.length ? `<div class="sec"><h4>Styled versions <span class="rule"></span></h4><div class="children">${D.children.map((c) => `<button type="button" data-open="${esc(c.id)}" title="${esc(c.name)}"><img alt="" src="${esc(thumbUrl(c))}"></button>`).join("")}</div></div>` : "";
+    const children = D.children && D.children.length ? `<div class="sec"><h4>${D.children.some(isGif) ? "Versions" : "Styled versions"} <span class="rule"></span></h4><div class="children">${D.children.map((c) => `<button type="button" data-open="${esc(c.id)}" title="${esc(c.name)}"><img alt="" src="${esc(thumbUrl(c))}"></button>`).join("")}</div></div>` : "";
     const parent = it.parent ? `<dt>Made from</dt><dd><button class="link" data-open="${esc(it.parent)}" type="button">Original capture</button></dd>` : "";
     return `
       <div class="preview">${media}</div>
@@ -889,7 +890,8 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
       </div>
       <div class="drow">
         <button class="btn" data-act="copy" title="Copy to the clipboard (C)" type="button"${it.exists ? "" : " disabled"}>${ICONS.copy}Copy</button>
-        ${isStyledVideo(it) ? "" : `<button class="btn" data-act="style" type="button"${it.exists ? "" : " disabled"} title="${isVid ? "Add a background, a frame and zoom on clicks" : "Add a background and a frame"}">${ICONS.style}Style</button>`}
+        ${isStyledVideo(it) || isGif(it) ? "" : `<button class="btn" data-act="style" type="button"${it.exists ? "" : " disabled"} title="${isVid ? "Add a background, a frame and zoom on clicks" : "Add a background and a frame"}">${ICONS.style}Style</button>`}
+        ${isVid ? `<button class="btn" data-act="gif" type="button" title="Make an animated GIF with the GIF settings"${it.exists && gifJobs[it.id] == null ? "" : " disabled"}>${ICONS.gif}${esc(gifLabel(it.id))}</button>` : ""}
         <button class="btn" data-act="share" type="button"${it.exists && it.share_state !== "uploading" ? "" : " disabled"}>${ICONS.share}${it.share_url ? "Update online copy" : "Put online"}</button>
         <button class="btn ghost" data-act="open-file" title="Open in Fused Render in a new tab" type="button"${it.exists ? "" : " disabled"}>${ICONS.reveal}</button>
         <button class="btn ghost" data-act="reveal" title="Show in Finder" type="button">${ICONS.folder}</button>
@@ -976,7 +978,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
       if (act === "copy") {
         await api("copy", { id: it.id });
         flashDone("copy", "Copied");
-        snack(it.kind === "video" ? "Recording copied to the clipboard." : it.kind === "styled" ? "Styled image copied to the clipboard." : "Screenshot copied to the clipboard.", false, true);
+        snack(it.kind === "video" ? "Recording copied to the clipboard." : isGif(it) ? "GIF copied to the clipboard." : it.kind === "styled" ? "Styled image copied to the clipboard." : "Screenshot copied to the clipboard.", false, true);
       }
       else if (act === "reveal") await api("reveal", { id: it.id });
       else if (act === "open-file") window.open(viewerUrl(it.path), "_blank", "noopener");
@@ -1016,8 +1018,37 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
         if (next) openItem(next.id); else closeDrawer();
         loadList(true);
       }
-      else if (act === "style" && !isStyledVideo(it)) P.set("studio", "1");
+      else if (act === "style" && !isStyledVideo(it) && !isGif(it)) P.set("studio", "1");
+      else if (act === "gif") makeGif(it);
     } catch (e) { state.busy = {}; renderDrawer(); snack(errText(e), true); }
+  }
+
+  const gifJobs = {};
+  function gifLabel(id) { return gifJobs[id] == null ? "GIF" : `GIF ${Math.round(gifJobs[id] * 100)}%`; }
+  function paintGif(id) {
+    const b = $('#drawerRoot [data-act="gif"]');
+    if (!b || state.item !== id) return;
+    b.disabled = gifJobs[id] != null;
+    b.innerHTML = ICONS.gif + esc(gifLabel(id));
+  }
+
+  async function makeGif(it) {
+    if (gifJobs[it.id] != null) return;
+    gifJobs[it.id] = 0; paintGif(it.id);
+    let st;
+    try {
+      st = await api("make_gif", { id: it.id });
+      while (st.state === "running") {
+        await new Promise((r) => setTimeout(r, 800));
+        try { st = await api("video_job", { id: it.id, kind: "gif" }, { key: "gifjob-" + it.id }); } catch (e) { st = { state: "error", error: errText(e) }; }
+        gifJobs[it.id] = st.progress || 0; paintGif(it.id);
+      }
+    } catch (e) { st = { state: "error", error: errText(e) }; }
+    delete gifJobs[it.id]; paintGif(it.id);
+    if (st.state !== "done") { snack(st.error || "The GIF failed.", true); return; }
+    snack("The GIF is in the gallery.", false, true);
+    loadList(true);
+    if (state.item === it.id) loadItem(it.id, true);
   }
 
   let renaming = false;
@@ -1106,6 +1137,11 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
     return `<div class="seg">${[[0.5, "Small"], [1, "Normal"], [1.5, "Sharp"], [0, "Full"]].map(([v, t]) => `<button type="button" data-res="${kind}" data-scale="${v}" aria-pressed="${now === v}">${t}</button>`).join("")}</div>`;
   }
 
+  function gifSeg(key, label, help, choices) {
+    const now = state.settings.settings.gif[key];
+    return `<div class="row"><div class="lbl">${label}${help ? `<small>${help}</small>` : ""}</div><div class="seg">${choices.map(([v, t]) => `<button type="button" data-gif="${key}" data-v="${v}" aria-pressed="${now === v}">${t}</button>`).join("")}</div></div>`;
+  }
+
   function renderSettings() {
     const root = $("#tab-settings");
     const S = state.settings;
@@ -1127,10 +1163,10 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
       <div class="panel sbox">
         <h2>Shortcuts</h2>
         <p>Click a shortcut, then press the new keys. Use at least one of ⌘, ⌥, ⌃ or ⇧.</p>
-        ${["region", "window", "screen", "record", "open"].map((a) => `<div class="row"><div class="lbl">${ACTION_LABELS[a]}${errs[a] ? `<small class="err">Not available: another app uses it.</small>` : ""}</div>
+        ${["region", "window", "screen", "record", "gif", "open"].map((a) => `<div class="row"><div class="lbl">${ACTION_LABELS[a]}${errs[a] ? `<small class="err">Not available: another app uses it.</small>` : ""}</div>
           <button class="keyrec" data-rec="${a}" type="button">${esc(S.hotkey_labels[a] || "None")}</button>
           <button class="icon-btn" data-clear="${a}" title="Remove" type="button">${ICONS.close}</button></div>`).join("")}
-        <div class="row"><div class="lbl">Use the macOS screenshot keys<small>${s.override_system ? "On. ⌘⇧3, ⌘⇧4 and ⌘⇧5 open Hagaki. macOS gets them back when Hagaki stops." : "Hagaki takes ⌘⇧3 (screen), ⌘⇧4 (area) and ⌘⇧5 (record) from macOS. It asks first."}</small>
+        <div class="row"><div class="lbl">Use the macOS screenshot keys<small>${s.override_system ? "On. ⌘⇧3, ⌘⇧4, ⌘⇧5 and ⌘⇧6 open Hagaki. macOS gets them back when Hagaki stops." : "Hagaki takes ⌘⇧3 (screen), ⌘⇧4 (area) and ⌘⇧5 (record) from macOS, and uses ⌘⇧6 for GIFs. It asks first."}</small>
           <ul class="sys-list">${(sys.keys || []).map((k) => `<li><span>${k.enabled ? "macOS" : "Hagaki"}</span><span>·</span><span>${esc(k.label)}</span></li>`).join("")}</ul></div>
           <label class="switch"><input type="checkbox" data-act="override"${s.override_system ? " checked" : ""}><span></span></label></div>
       </div>
@@ -1182,6 +1218,17 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
         ${sw("record.cursor", s.record.cursor, "Show the pointer")}
         ${sw("record.draw_fade", s.record.draw_fade, "Fade the marks you draw", "Click Draw on the stop button to draw on the screen while you record. If this is on, each mark goes away after 3 seconds.")}
         <div class="row"><div class="lbl">Maximum length</div><div class="seg">${[5, 15, 30, 60].map((m) => `<button type="button" data-maxmin="${m}" aria-pressed="${Math.round((s.record.max_seconds || 1800) / 60) === m}">${m} min</button>`).join("")}</div></div>
+      </div>
+
+      <div class="panel sbox">
+        <h2>GIF</h2>
+        <p>Press the GIF shortcut again to stop. Hagaki then makes the GIF, saves it and copies it. A GIF has no sound. The GIF button on a recording uses these settings too.</p>
+        ${gifSeg("fps", "Frame rate", "More frames make smoother motion and a larger file.", [[10, "10 fps"], [15, "15 fps"], [20, "20 fps"], [30, "30 fps"]])}
+        ${gifSeg("size", "Size", "The longest side. Screen is the size that you see on the screen.", [[480, "480 px"], [720, "720 px"], [1080, "1080 px"], [0, "Screen"]])}
+        ${gifSeg("colors", "Colors", "Fewer colors make a smaller file. Smooth mixes colors for photos and gradients, but the file is larger.", [["fewer", "Fewer"], ["normal", "Normal"], ["smooth", "Smooth"]])}
+        ${sw("gif.loop", s.gif.loop, "Play in a loop", "If this is off, the GIF plays one time and stops.")}
+        ${sw("gif.cursor", s.gif.cursor, "Show the pointer")}
+        ${gifSeg("max_seconds", "Maximum length", "", [[15, "15 s"], [30, "30 s"], [60, "1 min"], [120, "2 min"]])}
       </div>
 
       <div class="panel sbox">
@@ -1276,7 +1323,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
     if (act === "override") {
       const enable = el.checked;
       if (enable) {
-        const ok = await confirmModal("Use ⌘⇧3, ⌘⇧4 and ⌘⇧5 for Hagaki?",
+        const ok = await confirmModal("Use ⌘⇧3, ⌘⇧4, ⌘⇧5 and ⌘⇧6 for Hagaki?",
           "Hagaki turns off the macOS screenshot shortcuts and uses these keys itself. Hagaki keeps a copy of your macOS settings. When you turn this off, or when Hagaki stops, macOS gets the keys back.", "Use the keys");
         if (!ok) { el.checked = false; return; }
       }
@@ -1387,6 +1434,8 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
   }
 
   function isStyledVideo(it) { return it.kind === "video" && it.source === "style"; }
+  function isGif(it) { return it.ext === ".gif"; }
+  function kindLabel(it) { return isGif(it) ? "GIF" : KIND_LABELS[it.kind] || it.kind || ""; }
 
   const Studio = {
     open: false, id: null, img: null, item: null, opts: null, raf: 0,
@@ -1699,6 +1748,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
       const dl = t.closest("[data-delay]"); if (dl) { saveSettings({ capture: { delay: Number(dl.dataset.delay) } }, false); return; }
       const au = t.closest("[data-audio]"); if (au) { saveSettings({ record: { audio: au.dataset.audio } }, false); return; }
       const mm = t.closest("[data-maxmin]"); if (mm) { saveSettings({ record: { max_seconds: Number(mm.dataset.maxmin) * 60 } }, false); return; }
+      const gs = t.closest("[data-gif]"); if (gs) { const k = gs.dataset.gif; saveSettings({ gif: { [k]: k === "colors" ? gs.dataset.v : Number(gs.dataset.v) } }, false); return; }
       const sm = t.closest("[data-sharemode]"); if (sm) { saveSettings({ share: { mode: sm.dataset.sharemode } }, false); return; }
       const a = t.closest("[data-act]");
       if (!a) return;
@@ -1712,7 +1762,7 @@ input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius
       if (act === "verify-all") { a.disabled = true; try { await api("verify_all"); snack("Hagaki checks all files now. The result shows in this log."); } catch (er) { snack(errText(er), true); } a.disabled = false; return; }
       if (act === "rescan") { a.disabled = true; try { await api("rescan"); snack("Hagaki scans the library folder now. New files show in the gallery."); } catch (er) { snack(errText(er), true); } a.disabled = false; return; }
       if (act === "open-log") { api("open_log"); return; }
-      if (["copy", "reveal", "open-file", "verify", "copy-ocr", "copy-link", "ocr", "magic", "share", "trash", "style"].includes(act)) { itemAction(act); return; }
+      if (["copy", "reveal", "open-file", "verify", "copy-ocr", "copy-link", "ocr", "magic", "share", "trash", "style", "gif"].includes(act)) { itemAction(act); return; }
       if (a.tagName === "INPUT" && a.type === "checkbox") return;
       settingsAction(a);
     });
